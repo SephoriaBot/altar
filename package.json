@@ -1,0 +1,28 @@
+{
+  "name": "tarot-table",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A tarot reference and interpreter for readers who use physical cards.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p api/tsconfig.json"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vercel/node": "^13.0.1",
+    "@vitejs/plugin-react": "^6.1.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
+  }
+}
