@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { Slot, Spread } from '../types';
-import { CARDS } from '../data/cards';
+import { useTradition } from '../lib/tradition';
 import { Glyph } from './Glyph';
 
 interface Props {
@@ -13,12 +13,13 @@ interface Props {
 }
 
 export function Table({ spread, slots, reversals = true, interactive = false, mini = false, onSlot }: Props) {
+  const T = useTradition();
   const style = { '--cols': spread.maxX + 1, '--maxx': spread.maxX, '--maxy': spread.maxY } as CSSProperties;
   return (
     <div className={'tbl' + (mini ? ' mini' : '')} style={style}>
       {spread.pos.map((p, i) => {
         const s = slots?.[i] ?? null;
-        const c = s ? CARDS[s.id] : null;
+        const c = s ? T.cards[s.id] : null;
         const rev = !!(c && reversals && s?.rev);
         const st = { '--x': p.x, '--y': p.y, '--rot': `${p.rot}deg`, '--rev': `${rev ? 180 : 0}deg`, zIndex: p.rot ? 2 : 1 } as CSSProperties;
         const cls = 'slot' + (c ? ` on s-${c.arc}` : ' empty') + (p.ntop ? ' ntop' : '');
@@ -27,7 +28,7 @@ export function Table({ spread, slots, reversals = true, interactive = false, mi
             <span className="n">{i + 1}</span>
             <span className="rk">{c.rk}</span>
             <span className="g-wrap">
-              <Glyph arc={c.arc} />
+              <Glyph arc={c.arc} tradition={T.id} />
             </span>
             {c.arc === 'major' && <span className="nm">{c.short}</span>}
           </>

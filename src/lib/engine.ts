@@ -1,6 +1,6 @@
-import type { Element, Entry, Slot, Spread } from '../types';
-import { CARDS, BY_SHORT } from '../data/cards';
-import { COURT, EL_TXT, FOCUS, NUMT, PAIRS, PLUR, RANKS, SUITS, TH } from '../data/lore';
+import type { Card, Element, Entry, Slot, Spread } from '../types';
+import type { Tradition } from '../data/traditions';
+import { EL_TXT, FOCUS, PLUR, TH } from '../data/lore';
 
 export const tn = (e: Entry) => (e.rev ? e.card.tr : e.card.tu);
 export const kwe = (e: Entry, n = 0) => (e.rev ? e.card.kwR : e.card.kwU)[n];
@@ -17,21 +17,27 @@ export function normSlots(slots: (Slot | null)[] | undefined, n: number): (Slot 
   return Array.from({ length: n }, (_, i) => old[i] ?? null);
 }
 
-export function toEntries(sp: Spread, slots: (Slot | null)[], reversals: boolean): Entry[] {
+export function toEntries(sp: Spread, slots: (Slot | null)[], reversals: boolean, T: Tradition): Entry[] {
   const out: Entry[] = [];
   sp.pos.forEach((pos, i) => {
     const s = slots[i];
-    if (s && CARDS[s.id]) out.push({ i, pos, card: CARDS[s.id], rev: reversals && s.rev });
+    if (s && T.cards[s.id]) out.push({ i, pos, card: T.cards[s.id], rev: reversals && s.rev });
   });
   return out;
 }
 
-const CUR = new Map<string, string>();
-PAIRS.forEach(([a, b, t]) => CUR.set([a, b].sort().join('+'), t));
 export const pairKey = (a: string, b: string) => [a, b].sort().join('+');
-export const pairsFor = (short: string) =>
-  PAIRS.filter(([a, b]) => a === short || b === short).map(([a, b, t]) => ({ other: a === short ? b : a, text: t }));
-export const cardByShort = (s: string) => BY_SHORT.get(s);
+/** Classic pairings for a card. `key` is the card's shared key, see Card.key. */
+export const pairsFor = (key: string, T: Tradition) =>
+  T.pairs.filter(([a, b]) => a === key || b === key).map(([a, b, t]) => ({ other: a === key ? b : a, text: t }));
+export const cardByKey = (key: string, T: Tradition) => T.byKey.get(key);
+
+// Numbers used for Marseille numerology. Courts and the unnumbered Fool have none.
+const numOf = (c: Card): number | null => (c.court ? null : c.arc === 'major' && c.num === 0 ? null : c.num);
+const reduceTo21 = (n: number) => {
+  while (n > 21) n = String(n).split('').reduce((t, d) => t + Number(d), 0);
+  return n;
+};
 
 type Rel = 'same' | 'friendly' | 'opposed' | 'neutral';
 function dignity(a: Element, b: Element): Rel {
@@ -52,11 +58,12 @@ export interface PairOut {
   score: number;
 }
 
-function pairInfo(a: Entry, b: Entry): Omit<PairOut, 'a' | 'b' | 'label'> {
+function pairInfo(a: Entry, b: Entry, T: Tradition): Omit<PairOut, 'a' | 'b' | 'label'> {
   const ca = a.card;
   const cb = b.card;
-  const cur = CUR.get(pairKey(ca.short, cb.short));
-  const rel = dignity(ca.el, cb.el);
+  const SUITS = T.suits;
+  const cur = T.pairMap.get(pairKey(ca.key, cb.key));
+  const rel: Rel = T.elements ? dignity(ca.el, cb.el) : 'neutral';
   const ka = kwe(a);
   const kb = kwe(b);
   const ta = tn(a);
@@ -70,7 +77,8 @@ function pairInfo(a: Entry, b: Entry): Omit<PairOut, 'a' | 'b' | 'label'> {
     if (revs.length) parts.push(`With ${list(revs)} reversed, expect this to play out more internally, or with delays.`);
     score += 3;
   } else {
-    if (rel === 'same') parts.push(`Both carry ${ca.el} energy, so ${ka} and ${kb} reinforce each other.`);
+    if (!T.elements) parts.push(`${cap(ka)} and ${kb} sit side by side, so read them as two voices in one conversation. Ask which one speaks first.`);
+    else if (rel === 'same') parts.push(`Both carry ${ca.el} energy, so ${ka} and ${kb} reinforce each other.`);
     else if (rel === 'friendly') parts.push(`${ca.el} and ${cb.el} support one another here: ${ka} feeds ${kb}.`);
     else if (rel === 'opposed') parts.push(`${ca.el} meets ${cb.el}. ${cap(ka)} and ${kb} pull in different directions, so this pairing asks you to hold both.`);
     else parts.push(`${cap(ka)} and ${kb} sit side by side without clashing, showing two facets of one situation.`);
@@ -79,12 +87,30 @@ function pairInfo(a: Entry, b: Entry): Omit<PairOut, 'a' | 'b' | 'label'> {
     if (bothMinorNum && ca.num === cb.num && ca.arc !== cb.arc) {
       const suitA = ca.arc as Exclude<typeof ca.arc, 'major'>;
       const suitB = cb.arc as Exclude<typeof cb.arc, 'major'>;
-      parts.push(`Both are ${PLUR[ca.num! - 1]}, so the theme of ${NUMT[ca.num!]} appears in two areas of life: ${SUITS[suitA].name} and ${SUITS[suitB].name}.`);
+      parts.push(`Both are ${PLUR[ca.num! - 1]}, so the theme of ${T.numt[ca.num!]} appears in two areas of life: ${SUITS[suitA].name} and ${SUITS[suitB].name}.`);
       score += 2;
     } else if (ca.arc !== 'major' && ca.arc === cb.arc) {
       const s = ca.arc as Exclude<typeof ca.arc, 'major'>;
       parts.push(`Both are ${SUITS[s].name}, so the story stays in the realm of ${SUITS[s].domain}.`);
       score += 1;
+    }
+
+    if (T.numerology) {
+      const na = numOf(ca);
+      const nb = numOf(cb);
+      if (ca.arc === 'major' && cb.arc === 'major' && na != null && nb != null) {
+        const sum = na + nb;
+        const r = reduceTo21(sum);
+        const M = T.cards.find((c) => c.arc === 'major' && c.num === r);
+        if (M) parts.push(`Numerology: ${ca.rk} + ${cb.rk} = ${sum}${sum > 21 ? `, which reduces to ${r}` : ''}, so ${M.name} (${M.rk}) colors the pair.`);
+        if (Math.abs(na - nb) === 1) {
+          parts.push(`They follow each other in the count, so the second grows out of the first.`);
+          score += 1;
+        }
+      } else if (ca.arc !== 'major' && ca.arc === cb.arc && na != null && nb != null && Math.abs(na - nb) === 1) {
+        parts.push(`They follow each other in the count, so the second grows out of the first.`);
+        score += 1;
+      }
     }
 
     if (ta > 0 && tb < 0) {
@@ -114,7 +140,8 @@ export interface Analysis {
   questions: string[];
 }
 
-export function analyze(entries: Entry[], sp: Spread, reversals: boolean): Analysis {
+export function analyze(entries: Entry[], sp: Spread, reversals: boolean, T: Tradition): Analysis {
+  const SUITS = T.suits;
   const n = entries.length;
   const arc = (e: Entry) => e.card.arc;
   const majors = entries.filter((e) => arc(e) === 'major');
@@ -148,7 +175,7 @@ export function analyze(entries: Entry[], sp: Spread, reversals: boolean): Analy
       .slice(0, 2)
       .forEach((k) => paras.push(`No ${SUITS[k].name} appear, which can mean ${SUITS[k].absent}.`));
   }
-  if (n >= 4) {
+  if (T.elements && n >= 4) {
     const me = (Object.keys(ec) as Element[]).sort((a, b) => ec[b] - ec[a])[0];
     const dupOfSuit = dom.length === 1 && SUITS[dom[0]].el === me;
     if (ec[me] >= 3 && ec[me] / n >= 0.4 && !dupOfSuit) paras.push(`${me} energy runs strong (${ec[me]} of ${n} cards): ${EL_TXT[me]}.`);
@@ -173,8 +200,18 @@ export function analyze(entries: Entry[], sp: Spread, reversals: boolean): Analy
     .slice(0, 2)
     .forEach((k) => {
       const g = byNum[k];
-      paras.push(`${g.length} ${PLUR[k - 1]} (${list(g.map((e) => e.card.name))}) repeat the theme of ${NUMT[k]} across ${list(g.map((e) => SUITS[e.card.arc as keyof typeof SUITS].name))}.`);
+      paras.push(`${g.length} ${PLUR[k - 1]} (${list(g.map((e) => e.card.name))}) repeat the theme of ${T.numt[k]} across ${list(g.map((e) => SUITS[e.card.arc as keyof typeof SUITS].name))}.`);
     });
+  if (T.numerology) {
+    const echoes: string[] = [];
+    minors
+      .filter((e) => !e.card.court && e.card.num)
+      .forEach((e) => {
+        const m = majors.find((x) => x.card.num === e.card.num);
+        if (m) echoes.push(`${e.card.name} and ${m.card.name} share the number ${e.card.num}, so ${T.numt[e.card.num!]} shows up both as an everyday matter and as a larger archetype.`);
+      });
+    echoes.slice(0, 2).forEach((t) => paras.push(t));
+  }
 
   const plus = entries.filter((e) => tn(e) > 0).length;
   const minus = entries.filter((e) => tn(e) < 0).length;
@@ -222,7 +259,7 @@ export function analyze(entries: Entry[], sp: Spread, reversals: boolean): Analy
   }
   let pairs: PairOut[] = raw
     .filter(([x, y]) => idx[x] && idx[y])
-    .map(([x, y, label]) => ({ a: idx[x], b: idx[y], label, ...pairInfo(idx[x], idx[y]) }));
+    .map(([x, y, label]) => ({ a: idx[x], b: idx[y], label, ...pairInfo(idx[x], idx[y], T) }));
   if (pairs.length > 6) {
     const keep = new Set(
       pairs
@@ -293,20 +330,15 @@ export function focusLens(entries: Entry[], key: string): FocusResult | null {
   };
 }
 
-export function courtNote(rank: string) {
-  return COURT[rank];
-}
-export { RANKS };
-
-export function readingText(sp: Spread, entries: Entry[], reversals: boolean, question = ''): string {
-  const L: string[] = [`${sp.name} reading`];
+export function readingText(sp: Spread, entries: Entry[], reversals: boolean, T: Tradition, question = ''): string {
+  const L: string[] = [`${sp.name} reading (${T.label})`];
   if (question) L.push(`Question: ${question}`);
   L.push('');
   entries.forEach((e) => {
     L.push(`${e.i + 1}. ${e.pos.l}: ${nm(e)}`, `   ${kwsOf(e).join(', ')}`, `   ${meaning(e)}`, '');
   });
   if (entries.length >= 2) {
-    const A = analyze(entries, sp, reversals);
+    const A = analyze(entries, sp, reversals, T);
     L.push('Together', '');
     A.paras.forEach((p) => L.push(p));
     if (A.pairs.length) {

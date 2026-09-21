@@ -1,18 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Card, Slot, Spread } from '../types';
-import { CARDS } from '../data/cards';
-import { searchCards, type DeckFilter } from '../lib/search';
+import { filtersFor, searchCards, type DeckFilter } from '../lib/search';
+import { useTradition } from '../lib/tradition';
 import { Glyph } from './Glyph';
 import { Sheet } from './Sheet';
-
-const FILTERS: [DeckFilter, string][] = [
-  ['all', 'All'],
-  ['major', 'Major'],
-  ['wands', 'Wands'],
-  ['cups', 'Cups'],
-  ['swords', 'Swords'],
-  ['pents', 'Pentacles'],
-];
 
 interface Props {
   spread: Spread;
@@ -33,6 +24,7 @@ export function Picker({ spread, index, slots, reversals, onPick, onRemove, onCl
 }
 
 function PickerBody({ spread, index, slots, reversals, onPick, onRemove, onClose }: Omit<Props, 'index'> & { index: number }) {
+  const T = useTradition();
   const cur = slots[index];
   const [q, setQ] = useState('');
   const [f, setF] = useState<DeckFilter>('all');
@@ -52,7 +44,7 @@ function PickerBody({ spread, index, slots, reversals, onPick, onRemove, onClose
     return m;
   }, [slots, index]);
 
-  const results = useMemo(() => searchCards(q, f), [q, f]);
+  const results = useMemo(() => searchCards(q, f, T), [q, f, T]);
 
   return (
     <div className="sh">
@@ -100,7 +92,7 @@ function PickerBody({ spread, index, slots, reversals, onPick, onRemove, onClose
         }}
       />
       <div className="chips scroll">
-        {FILTERS.map(([k, label]) => (
+        {filtersFor(T).map(([k, label]) => (
           <button key={k} type="button" className="chip" aria-pressed={f === k} onClick={() => setF(k)}>
             {label}
           </button>
@@ -112,9 +104,9 @@ function PickerBody({ spread, index, slots, reversals, onPick, onRemove, onClose
         {results.map((c) => {
           const u = used.get(c.id);
           return (
-            <button key={c.id} type="button" className={`row s-${c.arc}` + (cur?.id === c.id ? ' cur' : '')} disabled={!!u} onClick={() => onPick(CARDS[c.id], rev)}>
+            <button key={c.id} type="button" className={`row s-${c.arc}` + (cur?.id === c.id ? ' cur' : '')} disabled={!!u} onClick={() => onPick(c, rev)}>
               <span className="ic">
-                <Glyph arc={c.arc} />
+                <Glyph arc={c.arc} tradition={T.id} />
               </span>
               <span className="rt">
                 <span className="rn">{c.name}</span>

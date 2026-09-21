@@ -6,7 +6,9 @@ import { Icons } from './components/Glyph';
 import { JournalTab } from './components/JournalTab';
 import { ReadTab } from './components/ReadTab';
 import { SpreadsTab } from './components/SpreadsTab';
+import { TRADITIONS, TRADITION_IDS } from './data/traditions';
 import { loadRead, saveRead } from './lib/storage';
+import { TraditionProvider } from './lib/tradition';
 
 type Tab = 'spreads' | 'read' | 'cards' | 'journal';
 const TABS: [Tab, string, keyof typeof Icons][] = [
@@ -20,11 +22,14 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('spreads');
   const [openSpread, setOpenSpread] = useState<string | null>(null);
   const [read, setReadState] = useState<ReadState>(loadRead);
-  const [info, setInfo] = useState<Card | null>(null);
+  const [infoId, setInfoId] = useState<number | null>(null);
   const [toastMsg, setToastMsg] = useState('');
   const toastTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => saveRead(read), [read]);
+
+  const T = TRADITIONS[read.tradition];
+  const showCard = (c: Card) => setInfoId(c.id);
 
   const setRead = (fn: (r: ReadState) => ReadState) => setReadState((r) => fn(r));
   const go = (t: Tab) => {
@@ -48,11 +53,21 @@ export default function App() {
   };
 
   return (
-    <>
+    <TraditionProvider value={T}>
       <div className="shell">
         <div className="brand">
           {Icons.moon}
           Tarot Table
+        </div>
+        <div className="trad">
+          <div className="seg" role="group" aria-label="Interpretation tradition">
+            {TRADITION_IDS.map((id) => (
+              <button key={id} type="button" aria-pressed={read.tradition === id} onClick={() => setRead((r) => ({ ...r, tradition: id }))}>
+                {TRADITIONS[id].label}
+              </button>
+            ))}
+          </div>
+          <p className="muted small">{T.tagline}</p>
         </div>
         <main>
           {tab === 'spreads' && (
@@ -74,11 +89,11 @@ export default function App() {
                 setOpenSpread(id);
                 window.scrollTo(0, 0);
               }}
-              onCardInfo={setInfo}
+              onCardInfo={showCard}
               toast={toast}
             />
           )}
-          {tab === 'cards' && <CardsTab onOpen={setInfo} />}
+          {tab === 'cards' && <CardsTab onOpen={showCard} />}
           {tab === 'journal' && <JournalTab onOpen={openSaved} />}
         </main>
       </div>
@@ -94,12 +109,12 @@ export default function App() {
         </div>
       </nav>
 
-      <CardDetail card={info} onClose={() => setInfo(null)} onOpen={setInfo} />
+      <CardDetail card={infoId === null ? null : T.cards[infoId]} onClose={() => setInfoId(null)} onOpen={showCard} />
       {toastMsg && (
         <div className="toast" role="status">
           {toastMsg}
         </div>
       )}
-    </>
+    </TraditionProvider>
   );
 }

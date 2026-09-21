@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { SavedReading } from '../types';
-import { CARDS } from '../data/cards';
 import { deleteReadingRemote, getJournalKey, listReadings, setJournalKey } from '../lib/storage';
+import { useTradition } from '../lib/tradition';
 
 export function JournalTab({ onOpen }: { onOpen: (r: SavedReading) => void }) {
+  const T = useTradition();
   const [key, setKey] = useState(getJournalKey());
   const [draft, setDraft] = useState('');
   const [items, setItems] = useState<SavedReading[] | null>(null);
@@ -105,7 +106,7 @@ export function JournalTab({ onOpen }: { onOpen: (r: SavedReading) => void }) {
           {r.question && <p className="muted small">{r.spreadName}</p>}
           <p className="small">
             {r.cards
-              .map((s, i) => (s && CARDS[s.id] ? `${i + 1}. ${CARDS[s.id].name}${s.rev ? ' (reversed)' : ''}` : null))
+              .map((s, i) => (s && T.cards[s.id] ? `${i + 1}. ${T.cards[s.id].name}${T.reversals && s.rev ? ' (reversed)' : ''}` : null))
               .filter(Boolean)
               .join(', ')}
           </p>

@@ -7,6 +7,7 @@ A tarot reference and interpreter for readers who use physical cards. There is n
   - **Each card:** keywords and the upright or reversed meaning in that position.
   - **Together:** suit, element and number patterns, recurring themes, how neighboring cards interact (with classic pairings), a story arc, support and challenge, a topic lens (love, work, money, inner life) and journal questions.
 - **Cards:** all 78 cards with upright and reversed meanings, astrology and element correspondences, and classic pairings.
+- **Tradition toggle:** the switch under the title picks how everything is interpreted, Rider-Waite or Marseille. It applies to Read, Cards and the reading basics, and your choice is remembered on your device. Both traditions use the same card ids, so a saved reading opens in either one.
 - **Journal:** save readings (with a question and notes) to your own Turso database and reopen them later.
 
 Everything except the Journal runs in the browser. Your current reading is remembered on your device.
@@ -34,11 +35,15 @@ tarot-table/
    ├─ styles.css
    ├─ types.ts
    ├─ data/
-   │  ├─ cards.ts           the 78 cards
+   │  ├─ cards.ts           the 78 cards (Rider-Waite)
+   │  ├─ marseille.ts       the same 78 cards read the Marseille way
+   │  ├─ traditions.ts      registry of traditions and the default
    │  ├─ spreads.ts         the spreads and their layouts
-   │  └─ lore.ts            themes, pairings, numerology, element notes
+   │  └─ lore.ts            themes, pairings, numerology, element notes (Rider-Waite)
    ├─ lib/
    │  ├─ engine.ts          the combined-interpretation logic
+   │  ├─ tradition.tsx      React context that hands the active tradition to components
+   │  ├─ facts.ts           number, court and suit notes for a card
    │  ├─ search.ts          card search
    │  └─ storage.ts         local persistence and the journal API client
    └─ components/
@@ -98,5 +103,7 @@ Other scripts: `npm run build` builds to `dist/`, `npm run typecheck` checks bot
 ## Notes
 
 - **Privacy:** the journal is protected by one shared key, which suits a personal app. Anyone who has the key can read and delete your readings. If you later want real accounts, Clerk slots in at `api/readings.ts` (check the session there instead of `JOURNAL_KEY`).
-- **Interpretations** are rule-based, not generated. The engine combines suit, element, number, tone and theme data with a set of hand-written classic pairings, so results are consistent and work offline. Card meanings follow the Rider-Waite-Smith tradition, and element and astrology correspondences follow the Golden Dawn. If your reading tradition differs, edit `src/data/cards.ts` and `src/data/lore.ts`.
+- **Interpretations** are rule-based, not generated. The engine combines suit, element, number, tone and theme data with a set of hand-written classic pairings, so results are consistent and work offline. Rider-Waite mode uses Rider-Waite-Smith meanings with Golden Dawn element and astrology correspondences, and reversals are optional. Marseille mode reads by number, suit and picture instead: names and numbering follow the Marseille deck (La Force is XI, La Justice is VIII), number cards echo the major of the same number, every card is read upright, and there are no elements or astrology. Each Marseille card has a "look closely" note; those describe the common Marseille pattern, and your deck may differ in details. Major pairs also get a numerology line (the two numbers added and reduced), which is a common practice rather than a fixed rule.
+- **Choosing the default tradition:** change `DEFAULT_TRADITION` in `src/data/traditions.ts`. It only applies until someone picks a tradition in the toggle.
+- **Adding a tradition:** build a `Card[]` with the same 78 ids (see `src/data/marseille.ts`), describe it in `src/data/traditions.ts` (suits, number notes, pairings, and whether it uses elements, reversals and numerology), and add its id to `TraditionId` in `src/types.ts`. Pairings are keyed by each card's `key`, the Rider-Waite short name that every tradition shares.
 - **Adding a spread:** add an entry to `src/data/spreads.ts`. Positions use `x` and `y` grid units, where one unit is one card width across or one card height down.

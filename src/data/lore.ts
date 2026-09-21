@@ -1,6 +1,6 @@
-import type { Arc, Element } from '../types';
+import type { Arc, Element, SuitDef } from '../types';
 
-export const SUITS: Record<Exclude<Arc, 'major'>, { name: string; el: Element; domain: string; absent: string; syn: string }> = {
+export const SUITS: Record<Exclude<Arc, 'major'>, SuitDef> = {
   wands: { name: 'Wands', el: 'Fire', domain: 'drive, passion and creative work', absent: 'little spark or drive is showing up right now', syn: 'wand batons staves rods' },
   cups: { name: 'Cups', el: 'Water', domain: 'emotion, intuition and relationships', absent: 'feelings and relationships are sitting in the background', syn: 'cup chalices chalice' },
   swords: { name: 'Swords', el: 'Air', domain: 'thought, communication and conflict', absent: 'few sharp conflicts, or that the thinking still needs doing', syn: 'sword blades' },

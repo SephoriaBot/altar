@@ -1,12 +1,13 @@
 import type { ReadState, SavedReading, Slot } from '../types';
 import { CARDS } from '../data/cards';
 import { FOCUS } from '../data/lore';
+import { DEFAULT_TRADITION, TRADITION_IDS } from '../data/traditions';
 import { SPREADS } from '../data/spreads';
 
 const READ_KEY = 'tarot-table:read:v1';
 const JOURNAL_KEY = 'tarot-table:journal-key';
 
-export const defaultRead = (): ReadState => ({ spread: 'ppf', cards: {}, rev: true, focus: 'general', free: 3, view: 'cards' });
+export const defaultRead = (): ReadState => ({ spread: 'ppf', cards: {}, rev: true, focus: 'general', free: 3, view: 'cards', tradition: DEFAULT_TRADITION });
 
 export function loadRead(): ReadState {
   const r = defaultRead();
@@ -17,6 +18,7 @@ export function loadRead(): ReadState {
     if (typeof s.rev === 'boolean') r.rev = s.rev;
     if (s.focus && FOCUS[s.focus]) r.focus = s.focus;
     if (s.view === 'cards' || s.view === 'together') r.view = s.view;
+    if (s.tradition && TRADITION_IDS.includes(s.tradition)) r.tradition = s.tradition;
     if (Number.isInteger(s.free) && s.free! >= 1 && s.free! <= 12) r.free = s.free!;
     if (s.spread && (s.spread === 'free' || SPREADS.some((x) => x.id === s.spread))) r.spread = s.spread;
     if (s.cards && typeof s.cards === 'object') {

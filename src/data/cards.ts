@@ -132,6 +132,10 @@ MAJOR.split('\n').forEach((ln, i) => {
     tu: tone(f[8][0]),
     tr: tone(f[8][1]),
     words: buildWords(f[0], 'major', i, ROMAN[i]),
+    key: f[0].replace(/^The /, ''),
+    ord: i,
+    alt: null,
+    look: null,
   });
 });
 
@@ -159,6 +163,10 @@ MAJOR.split('\n').forEach((ln, i) => {
       tu: tone(f[5][0]),
       tr: tone(f[5][1]),
       words: buildWords(name, suit, num, RANK_SHORT[j]),
+      key: name,
+      ord: CARDS.length,
+      alt: null,
+      look: null,
     });
   });
 });

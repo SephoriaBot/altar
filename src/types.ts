@@ -1,5 +1,16 @@
 export type Arc = 'major' | 'wands' | 'cups' | 'swords' | 'pents';
 export type Element = 'Fire' | 'Water' | 'Air' | 'Earth';
+export type TraditionId = 'rws' | 'marseille';
+
+export interface SuitDef {
+  name: string;
+  el: Element;
+  domain: string;
+  absent: string;
+  syn: string;
+  /** How the suit is drawn, for traditions that read the pictures. */
+  look?: string;
+}
 
 export interface Card {
   id: number;
@@ -20,6 +31,14 @@ export interface Card {
   tu: number;
   tr: number;
   words: string[];
+  /** Stable name shared by every tradition (the Rider-Waite short name). Pairings are looked up by this. */
+  key: string;
+  /** Sort order within the deck. */
+  ord: number;
+  /** The same card's name in the other tradition, when it differs. */
+  alt: string | null;
+  /** What to notice in the picture (Marseille). */
+  look: string | null;
 }
 
 export interface Pos {
@@ -69,6 +88,7 @@ export interface ReadState {
   focus: string;
   free: number;
   view: 'cards' | 'together';
+  tradition: TraditionId;
 }
 
 export interface SavedReading {

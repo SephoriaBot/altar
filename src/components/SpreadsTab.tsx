@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { BASICS } from '../data/lore';
 import { SPREADS } from '../data/spreads';
 import type { Spread } from '../types';
+import { useTradition } from '../lib/tradition';
 import { Icons } from './Glyph';
 import { Table, Thumb } from './Table';
 
@@ -14,6 +14,7 @@ interface Props {
 }
 
 export function SpreadsTab({ openId, setOpenId, onUse }: Props) {
+  const T = useTradition();
   const [filter, setFilter] = useState('All');
   const open = SPREADS.find((s) => s.id === openId);
   if (open) return <Detail sp={open} onBack={() => setOpenId(null)} onUse={onUse} />;
@@ -26,7 +27,7 @@ export function SpreadsTab({ openId, setOpenId, onUse }: Props) {
       <details className="basics">
         <summary>Reading basics</summary>
         <ol className="steps">
-          {BASICS.map((b) => (
+          {T.basics.map((b) => (
             <li key={b}>{b}</li>
           ))}
         </ol>

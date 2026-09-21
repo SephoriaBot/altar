@@ -1,28 +1,21 @@
 import { useMemo, useState } from 'react';
 import type { Card } from '../types';
-import { searchCards, type DeckFilter } from '../lib/search';
+import { filtersFor, searchCards, type DeckFilter } from '../lib/search';
+import { useTradition } from '../lib/tradition';
 import { Glyph } from './Glyph';
 
-const FILTERS: [DeckFilter, string][] = [
-  ['all', 'All'],
-  ['major', 'Major'],
-  ['wands', 'Wands'],
-  ['cups', 'Cups'],
-  ['swords', 'Swords'],
-  ['pents', 'Pentacles'],
-];
-
 export function CardsTab({ onOpen }: { onOpen: (c: Card) => void }) {
+  const T = useTradition();
   const [q, setQ] = useState('');
   const [f, setF] = useState<DeckFilter>('all');
-  const res = useMemo(() => searchCards(q, f), [q, f]);
+  const res = useMemo(() => searchCards(q, f, T), [q, f, T]);
   return (
     <>
       <h1>Cards</h1>
-      <p className="muted">All 78 cards with upright and reversed meanings. Search by name, number or suit.</p>
+      <p className="muted">{T.cardsIntro}</p>
       <input className="field" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder='Try "tower" or "3 cups"' autoComplete="off" autoCapitalize="off" spellCheck={false} aria-label="Search cards" />
       <div className="chips scroll" role="group" aria-label="Filter by suit">
-        {FILTERS.map(([k, label]) => (
+        {filtersFor(T).map(([k, label]) => (
           <button key={k} type="button" className="chip" aria-pressed={f === k} onClick={() => setF(k)}>
             {label}
           </button>
@@ -32,7 +25,7 @@ export function CardsTab({ onOpen }: { onOpen: (c: Card) => void }) {
         {res.map((c) => (
           <button key={c.id} type="button" className={`row s-${c.arc}`} onClick={() => onOpen(c)}>
             <span className="ic">
-              <Glyph arc={c.arc} />
+              <Glyph arc={c.arc} tradition={T.id} />
             </span>
             <span className="rt">
               <span className="rn">{c.name}</span>

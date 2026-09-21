@@ -1,10 +1,11 @@
 import { useMemo, useRef, useState } from 'react';
 import type { Card, Entry, ReadState, Slot, Spread } from '../types';
-import { CARDS } from '../data/cards';
-import { FOCUS, NUMT, COURT, SUITS, TH } from '../data/lore';
+import { FOCUS, TH } from '../data/lore';
 import { SPREADS, getSpread } from '../data/spreads';
 import { analyze, focusLens, kwsOf, meaning, nm, normSlots, readingText, toEntries, type Analysis } from '../lib/engine';
+import { cardFacts } from '../lib/facts';
 import { saveReadingRemote } from '../lib/storage';
+import { useTradition } from '../lib/tradition';
 import { Picker } from './Picker';
 import { Sheet } from './Sheet';
 import { Table } from './Table';
@@ -18,9 +19,11 @@ interface Props {
 }
 
 export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Props) {
+  const T = useTradition();
+  const reversals = read.rev && T.reversals;
   const sp = useMemo(() => getSpread(read.spread, read.free), [read.spread, read.free]);
   const slots = useMemo(() => normSlots(read.cards[sp.id], sp.n), [read.cards, sp]);
-  const entries = useMemo(() => toEntries(sp, slots, read.rev), [sp, slots, read.rev]);
+  const entries = useMemo(() => toEntries(sp, slots, reversals, T), [sp, slots, reversals, T]);
   const [pick, setPick] = useState<number | null>(null);
   const [armed, setArmed] = useState(false);
   const armTimer = useRef<number | undefined>(undefined);
@@ -36,7 +39,7 @@ export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Prop
     if (pick === null) return;
     const wasEmpty = !slots[pick];
     const next = slots.slice();
-    next[pick] = { id: card.id, rev: read.rev && reversed };
+    next[pick] = { id: card.id, rev: reversals && reversed };
     setSlots(next);
     let nxt: number | null = null;
     if (wasEmpty) for (let j = pick + 1; j < sp.n; j++) if (!next[j]) { nxt = j; break; }
@@ -70,7 +73,7 @@ export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Prop
   };
 
   const copy = async () => {
-    const text = readingText(sp, entries, read.rev, question.trim());
+    const text = readingText(sp, entries, reversals, T, question.trim());
     try {
       await navigator.clipboard.writeText(text);
       toast('Copied');
@@ -113,10 +116,14 @@ export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Prop
       </select>
 
       <div className="row2">
-        <label className="check">
-          <input type="checkbox" checked={read.rev} onChange={(e) => setRead((r) => ({ ...r, rev: e.target.checked }))} />
-          Read reversals
-        </label>
+        {T.reversals ? (
+          <label className="check">
+            <input type="checkbox" checked={read.rev} onChange={(e) => setRead((r) => ({ ...r, rev: e.target.checked }))} />
+            Read reversals
+          </label>
+        ) : (
+          <span className="muted small">{T.reversalsNote}</span>
+        )}
         {sp.id !== 'free' ? (
           <button type="button" className="link" onClick={() => onOpenSpread(sp.id)}>
             How to lay it out
@@ -134,7 +141,7 @@ export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Prop
       </div>
 
       <div className="cloth">
-        <Table spread={sp} slots={slots} reversals={read.rev} interactive onSlot={setPick} />
+        <Table spread={sp} slots={slots} reversals={reversals} interactive onSlot={setPick} />
       </div>
 
       <div className="tools">
@@ -163,9 +170,9 @@ export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Prop
       {filled === 0 ? (
         <p className="empty-note">Tap a numbered slot above and pick the card you drew. Cards fill in order, and the reading updates as you go.</p>
       ) : read.view === 'cards' ? (
-        <CardsView sp={sp} slots={slots} read={read} onSlot={setPick} onFlip={flip} onInfo={onCardInfo} />
+        <CardsView sp={sp} slots={slots} reversals={reversals} onSlot={setPick} onFlip={flip} onInfo={onCardInfo} />
       ) : (
-        <Together sp={sp} entries={entries} read={read} setRead={setRead} />
+        <Together sp={sp} entries={entries} reversals={reversals} read={read} setRead={setRead} />
       )}
 
       {filled > 0 && (
@@ -192,7 +199,7 @@ export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Prop
         </>
       )}
 
-      <Picker spread={sp} index={pick} slots={slots} reversals={read.rev} onPick={choose} onRemove={removeAt} onClose={() => setPick(null)} />
+      <Picker spread={sp} index={pick} slots={slots} reversals={reversals} onPick={choose} onRemove={removeAt} onClose={() => setPick(null)} />
 
       <Sheet open={copyText !== null} onClose={() => setCopyText(null)}>
         <div className="sh">
@@ -212,7 +219,8 @@ export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Prop
   );
 }
 
-function CardsView({ sp, slots, read, onSlot, onFlip, onInfo }: { sp: Spread; slots: (Slot | null)[]; read: ReadState; onSlot: (i: number) => void; onFlip: (i: number) => void; onInfo: (c: Card) => void }) {
+function CardsView({ sp, slots, reversals, onSlot, onFlip, onInfo }: { sp: Spread; slots: (Slot | null)[]; reversals: boolean; onSlot: (i: number) => void; onFlip: (i: number) => void; onInfo: (c: Card) => void }) {
+  const T = useTradition();
   return (
     <div>
       {sp.pos.map((p, i) => {
@@ -231,8 +239,8 @@ function CardsView({ sp, slots, read, onSlot, onFlip, onInfo }: { sp: Spread; sl
             </div>
           );
         }
-        const c = CARDS[s.id];
-        const rev = read.rev && s.rev;
+        const c = T.cards[s.id];
+        const rev = reversals && s.rev;
         const e: Entry = { i, pos: p, card: c, rev };
         return (
           <article key={i} className={`cb s-${c.arc}`}>
@@ -254,15 +262,17 @@ function CardsView({ sp, slots, read, onSlot, onFlip, onInfo }: { sp: Spread; sl
             <p>{meaning(e)}</p>
             <details>
               <summary>More about this card</summary>
-              <p>
-                <strong>{rev ? 'Upright' : 'Reversed'}:</strong> {rev ? c.up : c.rev}
-              </p>
-              <p className="muted small">
-                Element: {c.el}.{c.corr ? ` Astrology: ${c.corr}.` : ''}
-                {c.num && !c.court ? ` ${c.rank}: ${NUMT[c.num]}.` : ''}
-                {c.court && c.rank ? ` ${c.rank}: ${COURT[c.rank]}.` : ''}
-                {c.arc !== 'major' ? ` ${SUITS[c.arc].name} govern ${SUITS[c.arc].domain}.` : ''}
-              </p>
+              {reversals && (
+                <p>
+                  <strong>{rev ? 'Upright' : 'Reversed'}:</strong> {rev ? c.up : c.rev}
+                </p>
+              )}
+              {c.look && (
+                <p>
+                  <strong>Look closely.</strong> {c.look}
+                </p>
+              )}
+              <p className="muted small">{[...(T.elements ? [`Element: ${c.el}.`, ...(c.corr ? [`Astrology: ${c.corr}.`] : [])] : []), ...cardFacts(c, T)].join(' ')}</p>
               <p className="muted small">Themes: {c.themes.map((t) => TH[t]?.label ?? t).join(', ')}.</p>
               <button type="button" className="link" onClick={() => onInfo(c)}>
                 Open full card entry
@@ -272,7 +282,7 @@ function CardsView({ sp, slots, read, onSlot, onFlip, onInfo }: { sp: Spread; sl
               <button type="button" className="btn ghost sm" onClick={() => onSlot(i)}>
                 Change card
               </button>
-              {read.rev && (
+              {reversals && (
                 <button type="button" className="btn ghost sm" onClick={() => onFlip(i)}>
                   {rev ? 'Show upright' : 'Show reversed'}
                 </button>
@@ -285,9 +295,10 @@ function CardsView({ sp, slots, read, onSlot, onFlip, onInfo }: { sp: Spread; sl
   );
 }
 
-function Together({ sp, entries, read, setRead }: { sp: Spread; entries: Entry[]; read: ReadState; setRead: (fn: (r: ReadState) => ReadState) => void }) {
+function Together({ sp, entries, reversals, read, setRead }: { sp: Spread; entries: Entry[]; reversals: boolean; read: ReadState; setRead: (fn: (r: ReadState) => ReadState) => void }) {
+  const T = useTradition();
   if (entries.length < 2) return <p className="empty-note">Add at least two cards to see how they combine.</p>;
-  const A: Analysis = analyze(entries, sp, read.rev);
+  const A: Analysis = analyze(entries, sp, reversals, T);
   const lens = focusLens(entries, read.focus);
   return (
     <div>

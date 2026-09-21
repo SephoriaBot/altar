@@ -122,6 +122,22 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   color: var(--brand);
 }
 
+.trad {
+  padding-bottom: 4px;
+}
+
+.trad .seg {
+  margin: 0 0 8px;
+}
+
+.trad .seg button {
+  min-height: 36px;
+}
+
+.trad p {
+  margin: 0;
+}
+
 /* controls */
 .btn {
   display: inline-flex;
