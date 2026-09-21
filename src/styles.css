@@ -465,7 +465,7 @@ textarea.field {
 }
 
 .slot.has-art {
-  background: var(--surface);
+  background: var(--sc);
   box-shadow: inset 0 0 0 2px rgba(255,255,255,0.55);
   overflow: hidden;
   justify-content: flex-start;
@@ -474,7 +474,7 @@ textarea.field {
 .slot.has-art .art {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: calc(var(--w) * 0.14);
 }
 
@@ -927,7 +927,7 @@ dialog.sheet::backdrop {
 .row .ic.has-art img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .card-art {
