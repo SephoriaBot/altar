@@ -3,6 +3,7 @@ import type { Card, Entry, ReadState, Slot, Spread } from '../types';
 import { FOCUS, TH } from '../data/lore';
 import { SPREADS, getSpread } from '../data/spreads';
 import { analyze, focusLens, kwsOf, meaning, nm, normSlots, readingText, toEntries, type Analysis } from '../lib/engine';
+import { cardArt } from '../lib/art';
 import { cardFacts } from '../lib/facts';
 import { saveReadingRemote } from '../lib/storage';
 import { useTradition } from '../lib/tradition';
@@ -242,12 +243,14 @@ function CardsView({ sp, slots, reversals, onSlot, onFlip, onInfo }: { sp: Sprea
         const c = T.cards[s.id];
         const rev = reversals && s.rev;
         const e: Entry = { i, pos: p, card: c, rev };
+        const art = cardArt(c);
         return (
           <article key={i} className={`cb s-${c.arc}`}>
             <p className="pl">
               <span className="pn">{i + 1}</span>
               {p.l}. {p.m}
             </p>
+            {art && <img className={'card-art' + (rev ? ' rev' : '')} src={art} alt="" />}
             <h3 className="cname">
               {c.name}
               {rev && <span className="ori">Reversed</span>}

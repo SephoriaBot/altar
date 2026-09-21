@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Card, Slot, Spread } from '../types';
+import { cardArt } from '../lib/art';
 import { filtersFor, searchCards, type DeckFilter } from '../lib/search';
 import { useTradition } from '../lib/tradition';
 import { Glyph } from './Glyph';
@@ -103,10 +104,11 @@ function PickerBody({ spread, index, slots, reversals, onPick, onRemove, onClose
         {results.length === 0 && <p className="empty-note">No card matches. Try a name, a number or a suit, like "tower" or "3 cups".</p>}
         {results.map((c) => {
           const u = used.get(c.id);
+          const art = cardArt(c);
           return (
             <button key={c.id} type="button" className={`row s-${c.arc}` + (cur?.id === c.id ? ' cur' : '')} disabled={!!u} onClick={() => onPick(c, rev)}>
-              <span className="ic">
-                <Glyph arc={c.arc} tradition={T.id} />
+              <span className={'ic' + (art ? ' has-art' : '')}>
+                {art ? <img src={art} alt="" /> : <Glyph arc={c.arc} tradition={T.id} />}
               </span>
               <span className="rt">
                 <span className="rn">{c.name}</span>

@@ -464,6 +464,27 @@ textarea.field {
   height: calc(var(--w) * 0.4);
 }
 
+.slot.has-art {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.55);
+  overflow: hidden;
+  justify-content: flex-start;
+}
+
+.slot.has-art .art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--w) * 0.14);
+}
+
+.slot.has-art .n {
+  z-index: 1;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.65);
+  color: #fff;
+  opacity: 0.9;
+}
+
 .slot .nm {
   font-size: max(8px, calc(var(--w) * 0.16));
   line-height: 1.1;
@@ -891,11 +912,35 @@ dialog.sheet::backdrop {
   color: var(--pastel-ink);
   display: grid;
   place-items: center;
+  overflow: hidden;
 }
 
 .row .ic svg {
   width: 22px;
   height: 22px;
+}
+
+.row .ic.has-art {
+  background: var(--surface2);
+}
+
+.row .ic.has-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-art {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  margin: 0 auto 14px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+
+.card-art.rev {
+  transform: rotate(180deg);
 }
 
 .rt {

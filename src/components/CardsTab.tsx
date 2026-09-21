@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Card } from '../types';
+import { cardArt } from '../lib/art';
 import { filtersFor, searchCards, type DeckFilter } from '../lib/search';
 import { useTradition } from '../lib/tradition';
 import { Glyph } from './Glyph';
@@ -22,17 +23,20 @@ export function CardsTab({ onOpen }: { onOpen: (c: Card) => void }) {
         ))}
       </div>
       <div>
-        {res.map((c) => (
+        {res.map((c) => {
+          const art = cardArt(c);
+          return (
           <button key={c.id} type="button" className={`row s-${c.arc}`} onClick={() => onOpen(c)}>
-            <span className="ic">
-              <Glyph arc={c.arc} tradition={T.id} />
+            <span className={'ic' + (art ? ' has-art' : '')}>
+              {art ? <img src={art} alt="" /> : <Glyph arc={c.arc} tradition={T.id} />}
             </span>
             <span className="rt">
               <span className="rn">{c.name}</span>
               <span className="rs">{c.kwU.slice(0, 3).join(', ')}</span>
             </span>
           </button>
-        ))}
+          );
+        })}
         {res.length === 0 && <p className="empty-note">No card matches. Try a name, a number or a suit, like "tower" or "3 cups".</p>}
       </div>
     </>

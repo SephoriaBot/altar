@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { Slot, Spread } from '../types';
+import { cardArt } from '../lib/art';
 import { useTradition } from '../lib/tradition';
 import { Glyph } from './Glyph';
 
@@ -22,16 +23,24 @@ export function Table({ spread, slots, reversals = true, interactive = false, mi
         const c = s ? T.cards[s.id] : null;
         const rev = !!(c && reversals && s?.rev);
         const st = { '--x': p.x, '--y': p.y, '--rot': `${p.rot}deg`, '--rev': `${rev ? 180 : 0}deg`, zIndex: p.rot ? 2 : 1 } as CSSProperties;
-        const cls = 'slot' + (c ? ` on s-${c.arc}` : ' empty') + (p.ntop ? ' ntop' : '');
+        const art = c ? cardArt(c) : null;
+        const cls = 'slot' + (c ? ` on s-${c.arc}` : ' empty') + (p.ntop ? ' ntop' : '') + (art ? ' has-art' : '');
         const inner = c ? (
-          <>
-            <span className="n">{i + 1}</span>
-            <span className="rk">{c.rk}</span>
-            <span className="g-wrap">
-              <Glyph arc={c.arc} tradition={T.id} />
-            </span>
-            {c.arc === 'major' && <span className="nm">{c.short}</span>}
-          </>
+          art ? (
+            <>
+              <span className="n">{i + 1}</span>
+              <img className="art" src={art} alt="" />
+            </>
+          ) : (
+            <>
+              <span className="n">{i + 1}</span>
+              <span className="rk">{c.rk}</span>
+              <span className="g-wrap">
+                <Glyph arc={c.arc} tradition={T.id} />
+              </span>
+              {c.arc === 'major' && <span className="nm">{c.short}</span>}
+            </>
+          )
         ) : (
           <span className="n">{i + 1}</span>
         );

@@ -1,5 +1,6 @@
 import type { Card } from '../types';
 import { TH } from '../data/lore';
+import { cardArt } from '../lib/art';
 import { cardByKey, pairsFor, toneWord } from '../lib/engine';
 import { cardFacts } from '../lib/facts';
 import { useTradition } from '../lib/tradition';
@@ -23,6 +24,7 @@ export function CardDetail({ card, onClose, onOpen }: { card: Card | null; onClo
             </button>
           </div>
           <div className="sh-scroll">
+            {cardArt(card) && <img className="card-art" src={cardArt(card)!} alt={`${card.name} card art`} />}
             <div className="chips">
               {T.elements && <span className="chip static">Element: {card.el}</span>}
               {T.elements && card.corr && <span className="chip static">Astrology: {card.corr}</span>}
