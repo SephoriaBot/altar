@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Card, ReadState, SavedReading } from './types';
 import { CardDetail } from './components/CardDetail';
 import { CardsTab } from './components/CardsTab';
+import { ChartTab } from './components/ChartTab';
 import { Icons } from './components/Glyph';
 import { JournalTab } from './components/JournalTab';
 import { ReadTab } from './components/ReadTab';
@@ -10,12 +11,13 @@ import { TRADITIONS, TRADITION_IDS } from './data/traditions';
 import { loadRead, saveRead } from './lib/storage';
 import { TraditionProvider } from './lib/tradition';
 
-type Tab = 'spreads' | 'read' | 'cards' | 'journal';
+type Tab = 'spreads' | 'read' | 'cards' | 'journal' | 'chart';
 const TABS: [Tab, string, keyof typeof Icons][] = [
   ['spreads', 'Spreads', 'spreads'],
   ['read', 'Read', 'read'],
   ['cards', 'Cards', 'cards'],
   ['journal', 'Journal', 'journal'],
+  ['chart', 'Chart', 'chart'],
 ];
 
 export default function App() {
@@ -95,6 +97,7 @@ export default function App() {
           )}
           {tab === 'cards' && <CardsTab onOpen={showCard} />}
           {tab === 'journal' && <JournalTab onOpen={openSaved} />}
+          {tab === 'chart' && <ChartTab />}
         </main>
       </div>
 
