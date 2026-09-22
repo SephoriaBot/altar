@@ -1,23 +1,23 @@
 :root {
-  --bg: #fdf3f6;
-  --surface: #fffafc;
-  --surface2: #f7e3e9;
-  --ink: #263a32;
-  --muted: #667a71;
-  --line: #dfcbd2;
-  --brand: #3f8068;
+  --bg: #fdf5f8;
+  --surface: #fffbfd;
+  --surface2: #f6e5ee;
+  --ink: #3a2c37;
+  --muted: #8a7481;
+  --line: #e4cdd9;
+  --brand: #a9678f;
   --on-brand: #ffffff;
-  --moon: #f3c96f;
+  --moon: #d4ac66;
   --blush: #f3b6c7;
-  --cloth: #294f42;
-  --cloth-ink: #f5fbf8;
-  --cloth-line: #78a997;
+  --cloth: #4a2f47;
+  --cloth-ink: #faf3f8;
+  --cloth-line: #ac7fa3;
   --wands: #e9a58f;
   --cups: #a5c8e8;
   --swords: #91cdbd;
   --pents: #a8c99d;
   --major: #e5b8cf;
-  --pastel-ink: #263a32;
+  --pastel-ink: #3a2c37;
   --serif: 'Young Serif', 'Iowan Old Style', Georgia, serif;
   --sans: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Nunito', 'Segoe UI', system-ui, sans-serif;
   color-scheme: light;
@@ -28,31 +28,31 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #172720;
-    --surface: #21362d;
-    --surface2: #2d493e;
-    --ink: #f4efef;
-    --muted: #b8cbc3;
-    --line: #405b50;
-    --brand: #9bd1bb;
-    --on-brand: #193027;
-    --cloth: #10241d;
-    --cloth-line: #608d7b;
+    --bg: #241a22;
+    --surface: #2f2130;
+    --surface2: #3d2a3b;
+    --ink: #f6eef2;
+    --muted: #cbb4c3;
+    --line: #4a3548;
+    --brand: #d9a8c4;
+    --on-brand: #2c1c29;
+    --cloth: #1c1319;
+    --cloth-line: #7a5474;
     color-scheme: dark;
   }
 }
 
 :root[data-theme='dark'] {
-  --bg: #172720;
-  --surface: #21362d;
-  --surface2: #2d493e;
-  --ink: #f4efef;
-  --muted: #b8cbc3;
-  --line: #405b50;
-  --brand: #9bd1bb;
-  --on-brand: #193027;
-  --cloth: #10241d;
-  --cloth-line: #608d7b;
+  --bg: #241a22;
+  --surface: #2f2130;
+  --surface2: #3d2a3b;
+  --ink: #f6eef2;
+  --muted: #cbb4c3;
+  --line: #4a3548;
+  --brand: #d9a8c4;
+  --on-brand: #2c1c29;
+  --cloth: #1c1319;
+  --cloth-line: #7a5474;
   color-scheme: dark;
 }
 
