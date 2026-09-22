@@ -1,4 +1,4 @@
-import * as Astronomy from 'astronomy-engine';
+import * as Astronomy from 'astronomy-engine.mjs';
 
 const DEG = Math.PI / 180;
 const RAD = 180 / Math.PI;
