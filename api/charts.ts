@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { randomUUID } from 'crypto';
-import { buildNatalChart } from '../src/lib/chart.ts';
-import { getDbClient } from '../src/lib/db/client.ts';
+import { getDbClient } from '../src/lib/db/client';
+import type { NatalChart } from '../src/lib/chart';
 
 interface CreateChartBody {
   label?: string;
@@ -58,7 +58,11 @@ async function handleCreate(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  const chart = buildNatalChart(
+  // Dynamic import keeps astronomy-engine on the ESM side of the
+  // serverless runtime instead of loading it as CommonJS.
+  const { buildNatalChart } = await import('../src/lib/chart');
+
+  const chart: NatalChart = buildNatalChart(
     date,
     body.birthLat,
     body.birthLng,
@@ -94,7 +98,7 @@ async function handleCreate(req: VercelRequest, res: VercelResponse) {
       sql: `INSERT INTO chart_placements
         (chart_id, body, sign, degree, longitude, house, retrograde)
         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    args: [
+      args: [
         chartId,
         placement.body,
         placement.sign,
