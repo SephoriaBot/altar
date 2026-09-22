@@ -14,7 +14,11 @@
     "@libsql/client": "^0.18.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "astronomy-engine": "^2.1.19"
+    "astronomy-engine": "^2.1.19",
+    "@vercel/node": "^13.0.2",
+"tz-lookup": "^6.1.25",
+"@types/tz-lookup": "^6.1.2",
+"date-fns-tz": "^3.2.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.2",
