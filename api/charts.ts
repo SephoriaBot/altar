@@ -2,6 +2,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { randomUUID } from 'crypto';
 import { createClient } from '@libsql/client';
 
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 const Astronomy = require('astronomy-engine');
 
 type HouseSystem = 'whole-sign' | 'equal';
