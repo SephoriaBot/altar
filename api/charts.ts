@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { randomUUID } from 'crypto';
-import { buildNatalChart } from '../src/lib/chart';
-import { getDbClient } from '../src/lib/db/client';
+import { buildNatalChart } from '../src/lib/chart.js';
+import { getDbClient } from '../src/lib/db/client.js';
 
 interface CreateChartBody {
   label?: string;
