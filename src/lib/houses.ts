@@ -64,3 +64,25 @@ export function getHouseCusps(ascendant: number, system: HouseSystem): number[] 
   // equal
   return Array.from({ length: 12 }, (_, i) => norm360(ascendant + i * 30));
 }
+
+/**
+ * Given a planet's ecliptic longitude and a set of 12 house cusps (in house
+ * order, index 0 = house 1), return which house (1-12) it falls in.
+ *
+ * Works for any house system where cusps progress around the circle in
+ * order — whole-sign, equal, or (once fixed) Placidus/Koch/etc. Handles the
+ * 360°→0° wraparound.
+ */
+export function assignHouse(longitude: number, cusps: number[]): number {
+  const lon = norm360(longitude);
+  for (let i = 0; i < 12; i++) {
+    const start = norm360(cusps[i]);
+    const arcLength = norm360(cusps[(i + 1) % 12] - start);
+    const offset = norm360(lon - start);
+    if (offset < arcLength || arcLength === 0) {
+      return i + 1;
+    }
+  }
+  // Should never happen if cusps form a valid partition of the circle.
+  throw new Error(`Could not assign house for longitude ${longitude}`);
+}
