@@ -14,10 +14,11 @@ export interface PlanetPlacement {
   retrograde: boolean;
 }
 
-const BODIES = [
-  'Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter',
-  'Saturn', 'Uranus', 'Neptune', 'Pluto',
-] as const;
+const BODIES: Astronomy.Body[] = [
+  Astronomy.Body.Sun, Astronomy.Body.Moon, Astronomy.Body.Mercury, Astronomy.Body.Venus,
+  Astronomy.Body.Mars, Astronomy.Body.Jupiter, Astronomy.Body.Saturn, Astronomy.Body.Uranus,
+  Astronomy.Body.Neptune, Astronomy.Body.Pluto,
+];
 
 function norm360(x: number): number {
   return ((x % 360) + 360) % 360;
