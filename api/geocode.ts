@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     headers: {
       // Nominatim's usage policy requires a real identifying User-Agent —
       // replace tarot-table.vercel.app if your deployed domain differs.
-      'User-Agent': 'tarot-table (https://tarot-table.vercel.app)',
+      'User-Agent': 'tarot-table (https://tarot-table-pi.vercel.app)',
     },
   });
 
