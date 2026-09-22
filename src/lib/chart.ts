@@ -1,5 +1,5 @@
-import { getPlanetPositions, type PlanetPlacement } from './positions';
-import { getAngles, getHouseCusps, assignHouse, type HouseSystem, type Angles } from './houses';
+import { getPlanetPositions, type PlanetPlacement } from './positions.ts';
+import { getAngles, getHouseCusps, assignHouse, type HouseSystem, type Angles } from './houses.ts';
 
 export interface ChartPlacement extends PlanetPlacement {
   body: string;
