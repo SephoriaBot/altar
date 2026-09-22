@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { randomUUID } from 'crypto';
-import { getDbClient } from '../src/lib/db/client';
-import type { NatalChart } from '../src/lib/chart';
+import { createClient } from '@libsql/client';
 
 interface CreateChartBody {
   label?: string;
@@ -11,6 +10,22 @@ interface CreateChartBody {
   birthLng: number;
   birthLocationLabel?: string;
   houseSystem?: 'whole-sign' | 'equal';
+}
+
+function getDbClient() {
+  const url = process.env.TURSO_DATABASE_URL;
+  const authToken = process.env.TURSO_AUTH_TOKEN;
+
+  if (!url || !authToken) {
+    throw new Error(
+      'Missing TURSO_DATABASE_URL or TURSO_AUTH_TOKEN environment variables.',
+    );
+  }
+
+  return createClient({
+    url,
+    authToken,
+  });
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -58,11 +73,9 @@ async function handleCreate(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  // Dynamic import keeps astronomy-engine on the ESM side of the
-  // serverless runtime instead of loading it as CommonJS.
   const { buildNatalChart } = await import('../src/lib/chart');
 
-  const chart: NatalChart = buildNatalChart(
+  const chart = buildNatalChart(
     date,
     body.birthLat,
     body.birthLng,
