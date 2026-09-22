@@ -1,18 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "types": ["node", "@vercel/node"]
+    "isolatedModules": true,
+    "types": ["vite/client"]
   },
-  "include": [
-    "api/**/*.ts",
-    "src/lib/**/*.ts"
-  ]
+  "include": ["src", "vite.config.ts"]
 }
