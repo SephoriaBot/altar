@@ -92,6 +92,13 @@ export const Icons = {
       <path d="M9 9h6M9 13h4" />
     </svg>
   ),
+  chart: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M12 3v5.8M12 15.2V21M3 12h5.8M15.2 12H21" />
+    </svg>
+  ),
   back: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M15 5l-7 7 7 7" />
