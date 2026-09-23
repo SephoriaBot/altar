@@ -6,7 +6,15 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const Astronomy = require('astronomy-engine');
 
+/* ================================================================
+   TYPES
+   ================================================================ */
+
 type HouseSystem = 'whole-sign' | 'equal';
+
+type ZodiacSystem = 'tropical' | 'sidereal';
+
+type Ayanamsha = 'lahiri';
 
 const SIGNS = [
   'Aries',
@@ -35,6 +43,14 @@ interface PlanetPlacement {
 interface ChartPlacement extends PlanetPlacement {
   body: string;
   house: number | null;
+
+  /*
+   * The original astronomical longitude is preserved.
+   * This is useful if the frontend ever wants to display
+   * both tropical and sidereal coordinates.
+   */
+  tropicalLongitude: number;
+  zodiacLongitude: number;
 }
 
 interface Angles {
@@ -42,6 +58,13 @@ interface Angles {
   midheaven: number;
   ramc: number;
   obliquity: number;
+
+  /*
+   * Zodiac-adjusted angles.
+   * The physical Ascendant/MC calculation itself does not change.
+   */
+  zodiacAscendant: number;
+  zodiacMidheaven: number;
 }
 
 interface HouseInterpretation {
@@ -50,9 +73,14 @@ interface HouseInterpretation {
   sign: Sign;
   title: string;
   description: string;
+  cusp: number;
 }
 
 interface NatalChart {
+  zodiac: ZodiacSystem;
+  ayanamsha: Ayanamsha | null;
+  ayanamshaDegrees: number | null;
+
   angles: Angles | null;
   houseCusps: number[] | null;
   placements: ChartPlacement[];
@@ -67,10 +95,24 @@ interface CreateChartBody {
   birthLng: number;
   birthLocationLabel?: string;
   houseSystem?: HouseSystem;
+
+  /*
+   * Defaults to tropical so existing charts continue
+   * behaving the same way unless the frontend explicitly
+   * requests sidereal.
+   */
+  zodiac?: ZodiacSystem;
+
+  /*
+   * Currently Lahiri is supported.
+   * Keeping this as a setting makes it easy to add
+   * Fagan/Bradley or another ayanamsha later.
+   */
+  ayanamsha?: Ayanamsha;
 }
 
 /* ================================================================
-   ASTROLOGY INTERPRETATION DATA
+   INTERPRETATION DATA
    ================================================================ */
 
 const HOUSE_NAMES = [
@@ -102,49 +144,6 @@ const HOUSE_THEMES = [
   'friendships, groups, community, hopes, and long-term aspirations',
   'the subconscious, solitude, dreams, spirituality, closure, and inner life',
 ] as const;
-
-const SIGN_THEMES: Record<Sign, string> = {
-  Aries:
-    'initiative, independence, courage, action, and self-direction',
-
-  Taurus:
-    'stability, comfort, loyalty, resources, and patience',
-
-  Gemini:
-    'communication, curiosity, learning, adaptability, and ideas',
-
-  Cancer:
-    'emotional security, home, family, nurturing, and belonging',
-
-  Leo:
-    'creativity, confidence, self-expression, warmth, and recognition',
-
-  Virgo:
-    'organization, discernment, service, practicality, and improvement',
-
-  Libra:
-    'partnership, harmony, fairness, beauty, and cooperation',
-
-  Scorpio:
-    'depth, transformation, intimacy, trust, and emotional intensity',
-
-  Sagittarius:
-    'exploration, truth, meaning, optimism, and personal freedom',
-
-  Capricorn:
-    'responsibility, ambition, structure, achievement, and long-term goals',
-
-  Aquarius:
-    'independence, originality, community, innovation, and unconventional thinking',
-
-  Pisces:
-    'intuition, imagination, compassion, sensitivity, and spirituality',
-};
-
-/*
- * Shorter, more natural interpretations for each sign.
- * These are used to create the house reading shown to the user.
- */
 
 const SIGN_HOUSE_OPENERS: Record<Sign, string> = {
   Aries:
@@ -223,23 +222,137 @@ const SIGN_HOUSE_CLOSERS: Record<Sign, string> = {
 };
 
 /* ================================================================
-   MATH / ASTROLOGY CALCULATIONS
+   BASIC MATH
    ================================================================ */
 
 function norm360(x: number): number {
   return ((x % 360) + 360) % 360;
 }
 
+/* ================================================================
+   SIDEREAL / AYANAMSHA
+   ================================================================ */
+
+/*
+ * Lahiri ayanamsha.
+ *
+ * Lahiri is a commonly used sidereal reference. The published
+ * Lahiri value at 2000-01-01 is approximately:
+ *
+ * 23°51'11"
+ *
+ * We calculate its date-dependent value using the mean precession
+ * rate of approximately 50.29 arcseconds per year.
+ *
+ * This is intentionally isolated in its own function so that a
+ * more exact ephemeris-based ayanamsha implementation can be
+ * substituted later without changing the rest of the chart code.
+ */
+
+function getLahiriAyanamsha(
+  date: Date,
+): number {
+  const referenceDate =
+    Date.UTC(
+      2000,
+      0,
+      1,
+      0,
+      0,
+      0,
+    );
+
+  const millisecondsPerYear =
+    365.2425 *
+    24 *
+    60 *
+    60 *
+    1000;
+
+  const years =
+    (date.getTime() -
+      referenceDate) /
+    millisecondsPerYear;
+
+  const baseDegrees =
+    23 +
+    51 / 60 +
+    11 / 3600;
+
+  const precessionDegreesPerYear =
+    50.29 / 3600;
+
+  return (
+    baseDegrees +
+    years *
+      precessionDegreesPerYear
+  );
+}
+
+function getAyanamsha(
+  date: Date,
+  zodiac: ZodiacSystem,
+  ayanamsha: Ayanamsha,
+): number {
+  if (zodiac === 'tropical') {
+    return 0;
+  }
+
+  if (ayanamsha === 'lahiri') {
+    return getLahiriAyanamsha(
+      date,
+    );
+  }
+
+  return 0;
+}
+
+/*
+ * Convert a tropical longitude into the selected zodiac.
+ *
+ * Tropical:
+ *   longitude stays unchanged.
+ *
+ * Sidereal:
+ *   ayanamsha is subtracted.
+ */
+function convertLongitudeToZodiac(
+  tropicalLongitude: number,
+  zodiac: ZodiacSystem,
+  ayanamshaDegrees: number,
+): number {
+  if (zodiac === 'tropical') {
+    return norm360(
+      tropicalLongitude,
+    );
+  }
+
+  return norm360(
+    tropicalLongitude -
+      ayanamshaDegrees,
+  );
+}
+
+/* ================================================================
+   PLANET POSITIONS
+   ================================================================ */
+
 function longitudeToPlacement(
   lon: number,
   retrograde: boolean,
 ): PlanetPlacement {
   const longitude = norm360(lon);
-  const signIndex = Math.floor(longitude / 30);
+
+  const signIndex =
+    Math.floor(
+      longitude / 30,
+    );
 
   return {
     sign: SIGNS[signIndex],
-    degree: longitude - signIndex * 30,
+    degree:
+      longitude -
+      signIndex * 30,
     longitude,
     retrograde,
   };
@@ -248,8 +361,14 @@ function longitudeToPlacement(
 function getPlanetPositions(
   date: Date,
 ): Record<string, PlanetPlacement> {
-  const time = Astronomy.MakeTime(date);
-  const results: Record<string, PlanetPlacement> = {};
+  const time =
+    Astronomy.MakeTime(date);
+
+  const results:
+    Record<
+      string,
+      PlanetPlacement
+    > = {};
 
   const bodies = [
     Astronomy.Body.Sun,
@@ -264,25 +383,46 @@ function getPlanetPositions(
     Astronomy.Body.Pluto,
   ];
 
-  for (const body of bodies) {
-    const vec = Astronomy.GeoVector(
-      body,
-      time,
-      true,
-    );
+  for (
+    const body of bodies
+  ) {
+    const vec =
+      Astronomy.GeoVector(
+        body,
+        time,
+        true,
+      );
 
-    const lon = Astronomy.Ecliptic(vec).elon;
+    /*
+     * Astronomy Engine's ecliptic coordinates account for the
+     * date-dependent orientation of the ecliptic/equinox system.
+     * We preserve this as the tropical longitude and then apply
+     * the selected zodiac conversion afterward.
+     */
+    const tropicalLongitude =
+      norm360(
+        Astronomy.Ecliptic(
+          vec,
+        ).elon,
+      );
 
-    const laterVec = Astronomy.GeoVector(
-      body,
-      time.AddDays(1),
-      true,
-    );
+    const laterVec =
+      Astronomy.GeoVector(
+        body,
+        time.AddDays(1),
+        true,
+      );
 
-    const laterLon =
-      Astronomy.Ecliptic(laterVec).elon;
+    const laterLongitude =
+      norm360(
+        Astronomy.Ecliptic(
+          laterVec,
+        ).elon,
+      );
 
-    let delta = laterLon - lon;
+    let delta =
+      laterLongitude -
+      tropicalLongitude;
 
     if (delta > 180) {
       delta -= 360;
@@ -292,9 +432,11 @@ function getPlanetPositions(
       delta += 360;
     }
 
-    results[body.toLowerCase()] =
+    results[
+      body.toLowerCase()
+    ] =
       longitudeToPlacement(
-        lon,
+        tropicalLongitude,
         delta < 0,
       );
   }
@@ -302,17 +444,32 @@ function getPlanetPositions(
   return results;
 }
 
-function obliquity(time: any): number {
-  const DEG = Math.PI / 180;
-  const RAD = 180 / Math.PI;
+/* ================================================================
+   ANGLES
+   ================================================================ */
 
-  const T = time.tt / 36525.0;
+function obliquity(
+  time: any,
+): number {
+  const DEG =
+    Math.PI / 180;
+
+  const RAD =
+    180 / Math.PI;
+
+  const T =
+    time.tt / 36525.0;
 
   return (
     23.4392911 -
     0.0130042 * T -
-    0.00000016 * T * T +
-    0.000000504 * T * T * T
+    0.00000016 *
+      T *
+      T +
+    0.000000504 *
+      T *
+      T *
+      T
   ) * DEG * RAD;
 }
 
@@ -320,38 +477,59 @@ function getAngles(
   date: Date,
   latitude: number,
   longitude: number,
+  zodiac: ZodiacSystem,
+  ayanamshaDegrees: number,
 ): Angles {
-  const DEG = Math.PI / 180;
-  const RAD = 180 / Math.PI;
+  const DEG =
+    Math.PI / 180;
 
-  const time = Astronomy.MakeTime(date);
+  const RAD =
+    180 / Math.PI;
 
-  const epsDegrees = obliquity(time);
-  const eps = epsDegrees * DEG;
+  const time =
+    Astronomy.MakeTime(date);
+
+  const epsDegrees =
+    obliquity(time);
+
+  const eps =
+    epsDegrees * DEG;
 
   const gstHours =
-    Astronomy.SiderealTime(time);
+    Astronomy.SiderealTime(
+      time,
+    );
 
   const lstHours =
-    gstHours + longitude / 15;
+    gstHours +
+    longitude / 15;
 
   const lstDeg =
-    norm360(lstHours * 15);
+    norm360(
+      lstHours * 15,
+    );
 
-  const ramc = lstDeg * DEG;
-  const phi = latitude * DEG;
+  const ramc =
+    lstDeg * DEG;
+
+  const phi =
+    latitude * DEG;
 
   const mc =
     Math.atan2(
       Math.sin(ramc),
-      Math.cos(ramc) * Math.cos(eps),
+      Math.cos(ramc) *
+        Math.cos(eps),
     ) * RAD;
 
-  const ascY = -Math.cos(ramc);
+  const ascY =
+    -Math.cos(ramc);
 
   const ascX =
-    Math.sin(ramc) * Math.cos(eps) +
-    Math.tan(phi) * Math.sin(eps);
+    Math.sin(ramc) *
+      Math.cos(eps) +
+    Math.tan(phi) *
+      Math.sin(eps);
 
   const asc =
     Math.atan2(
@@ -359,33 +537,69 @@ function getAngles(
       ascX,
     ) * RAD;
 
+  const tropicalAscendant =
+    norm360(asc);
+
+  const tropicalMidheaven =
+    norm360(mc);
+
+  const zodiacAscendant =
+    convertLongitudeToZodiac(
+      tropicalAscendant,
+      zodiac,
+      ayanamshaDegrees,
+    );
+
+  const zodiacMidheaven =
+    convertLongitudeToZodiac(
+      tropicalMidheaven,
+      zodiac,
+      ayanamshaDegrees,
+    );
+
   return {
-    ascendant: norm360(asc),
-    midheaven: norm360(mc),
-    ramc: lstDeg,
-    obliquity: epsDegrees,
+    ascendant:
+      tropicalAscendant,
+
+    midheaven:
+      tropicalMidheaven,
+
+    ramc:
+      lstDeg,
+
+    obliquity:
+      epsDegrees,
+
+    zodiacAscendant,
+
+    zodiacMidheaven,
   };
 }
 
 /* ================================================================
-   HOUSE CALCULATIONS
+   HOUSE CUSPS
    ================================================================ */
 
 function getHouseCusps(
   ascendant: number,
   system: HouseSystem,
 ): number[] {
-  if (system === 'whole-sign') {
+  if (
+    system === 'whole-sign'
+  ) {
     const ascSignIndex =
       Math.floor(
-        norm360(ascendant) / 30,
+        norm360(
+          ascendant,
+        ) / 30,
       );
 
     return Array.from(
       { length: 12 },
       (_, i) =>
         norm360(
-          (ascSignIndex + i) * 30,
+          (ascSignIndex + i) *
+            30,
         ),
     );
   }
@@ -394,7 +608,8 @@ function getHouseCusps(
     { length: 12 },
     (_, i) =>
       norm360(
-        ascendant + i * 30,
+        ascendant +
+          i * 30,
       ),
   );
 }
@@ -403,21 +618,32 @@ function assignHouse(
   longitude: number,
   cusps: number[],
 ): number {
-  const lon = norm360(longitude);
+  const lon =
+    norm360(longitude);
 
-  for (let i = 0; i < 12; i++) {
-    const start = norm360(cusps[i]);
+  for (
+    let i = 0;
+    i < 12;
+    i++
+  ) {
+    const start =
+      norm360(cusps[i]);
 
-    const arcLength = norm360(
-      cusps[(i + 1) % 12] - start,
-    );
+    const arcLength =
+      norm360(
+        cusps[
+          (i + 1) % 12
+        ] - start,
+      );
 
-    const offset = norm360(
-      lon - start,
-    );
+    const offset =
+      norm360(
+        lon - start,
+      );
 
     if (
-      offset < arcLength ||
+      offset <
+        arcLength ||
       arcLength === 0
     ) {
       return i + 1;
@@ -436,21 +662,39 @@ function assignHouse(
 function buildHouseInterpretations(
   ascendant: number,
   houseSystem: HouseSystem,
+  zodiac: ZodiacSystem,
+  ayanamshaDegrees: number,
 ): HouseInterpretation[] {
-  const cusps = getHouseCusps(
-    ascendant,
-    houseSystem,
-  );
+  /*
+   * House geometry is calculated from the physical Ascendant.
+   * Then each cusp is converted into the selected zodiac before
+   * deciding which sign rules that house.
+   */
+  const tropicalCusps =
+    getHouseCusps(
+      ascendant,
+      houseSystem,
+    );
 
-  return cusps.map(
-    (cusp, index) => {
-      const house = index + 1;
+  return tropicalCusps.map(
+    (tropicalCusp, index) => {
+      const house =
+        index + 1;
 
-      const signIndex = Math.floor(
-        norm360(cusp) / 30,
-      );
+      const zodiacCusp =
+        convertLongitudeToZodiac(
+          tropicalCusp,
+          zodiac,
+          ayanamshaDegrees,
+        );
 
-      const sign = SIGNS[signIndex];
+      const signIndex =
+        Math.floor(
+          zodiacCusp / 30,
+        );
+
+      const sign =
+        SIGNS[signIndex];
 
       const name =
         HOUSE_NAMES[index];
@@ -459,14 +703,20 @@ function buildHouseInterpretations(
         HOUSE_THEMES[index];
 
       const opener =
-        SIGN_HOUSE_OPENERS[sign];
+        SIGN_HOUSE_OPENERS[
+          sign
+        ];
 
       const closer =
-        SIGN_HOUSE_CLOSERS[sign];
+        SIGN_HOUSE_CLOSERS[
+          sign
+        ];
 
       return {
         house,
+
         name,
+
         sign,
 
         title:
@@ -476,6 +726,9 @@ function buildHouseInterpretations(
           `${opener} ` +
           `This placement colors your ${houseTheme}. ` +
           `${closer}`,
+
+        cusp:
+          zodiacCusp,
       };
     },
   );
@@ -491,6 +744,8 @@ function buildNatalChart(
   longitude: number,
   birthTimeKnown: boolean,
   houseSystem: HouseSystem,
+  zodiac: ZodiacSystem,
+  ayanamsha: Ayanamsha,
 ): NatalChart {
   if (
     Number.isNaN(
@@ -522,31 +777,86 @@ function buildNatalChart(
     );
   }
 
+  const ayanamshaDegrees =
+    getAyanamsha(
+      date,
+      zodiac,
+      ayanamsha,
+    );
+
   const positions =
     getPlanetPositions(date);
 
   /*
-   * Without a known birth time, planets can still
-   * be calculated, but houses and angles cannot be
-   * reliably calculated.
+   * Without a birth time, planets can still be calculated.
+   * Houses and angles cannot reliably be calculated.
    */
-
   if (!birthTimeKnown) {
+    const placements =
+      Object.entries(
+        positions,
+      ).map(
+        ([body, placement]) => {
+          const tropicalLongitude =
+            placement.longitude;
+
+          const zodiacLongitude =
+            convertLongitudeToZodiac(
+              tropicalLongitude,
+              zodiac,
+              ayanamshaDegrees,
+            );
+
+          const zodiacPlacement =
+            longitudeToPlacement(
+              zodiacLongitude,
+              placement.retrograde,
+            );
+
+          return {
+            body,
+
+            house: null,
+
+            sign:
+              zodiacPlacement.sign,
+
+            degree:
+              zodiacPlacement.degree,
+
+            longitude:
+              zodiacPlacement.longitude,
+
+            retrograde:
+              placement.retrograde,
+
+            tropicalLongitude,
+
+            zodiacLongitude,
+          };
+        },
+      );
+
     return {
+      zodiac,
+
+      ayanamsha:
+        zodiac === 'sidereal'
+          ? ayanamsha
+          : null,
+
+      ayanamshaDegrees:
+        zodiac === 'sidereal'
+          ? ayanamshaDegrees
+          : null,
+
       angles: null,
+
       houseCusps: null,
+
       houseInterpretations: [],
 
-      placements:
-        Object.entries(
-          positions,
-        ).map(
-          ([body, placement]) => ({
-            body,
-            house: null,
-            ...placement,
-          }),
-        ),
+      placements,
     };
   }
 
@@ -555,41 +865,118 @@ function buildNatalChart(
       date,
       latitude,
       longitude,
+      zodiac,
+      ayanamshaDegrees,
     );
 
-  const houseCusps =
+  /*
+   * House geometry stays tied to the physical/tropical
+   * Ascendant calculation.
+   */
+  const tropicalHouseCusps =
     getHouseCusps(
       angles.ascendant,
       houseSystem,
     );
 
+  /*
+   * For planetary house assignment, the physical longitude
+   * and physical house cusps are used. The zodiac system
+   * determines the sign labels, not which physical house
+   * a planet occupies.
+   */
   const placements =
     Object.entries(
       positions,
     ).map(
-      ([body, placement]) => ({
-        body,
+      ([body, placement]) => {
+        const tropicalLongitude =
+          placement.longitude;
 
-        house:
-          assignHouse(
-            placement.longitude,
-            houseCusps,
-          ),
+        const zodiacLongitude =
+          convertLongitudeToZodiac(
+            tropicalLongitude,
+            zodiac,
+            ayanamshaDegrees,
+          );
 
-        ...placement,
-      }),
+        const zodiacPlacement =
+          longitudeToPlacement(
+            zodiacLongitude,
+            placement.retrograde,
+          );
+
+        return {
+          body,
+
+          house:
+            assignHouse(
+              tropicalLongitude,
+              tropicalHouseCusps,
+            ),
+
+          sign:
+            zodiacPlacement.sign,
+
+          degree:
+            zodiacPlacement.degree,
+
+          longitude:
+            zodiacPlacement.longitude,
+
+          retrograde:
+            placement.retrograde,
+
+          tropicalLongitude,
+
+          zodiacLongitude,
+        };
+      },
     );
 
   const houseInterpretations =
     buildHouseInterpretations(
       angles.ascendant,
       houseSystem,
+      zodiac,
+      ayanamshaDegrees,
+    );
+
+  /*
+   * Expose house cusps in the selected zodiac so the frontend
+   * does not accidentally label sidereal charts with tropical
+   * cusp degrees.
+   */
+  const zodiacHouseCusps =
+    tropicalHouseCusps.map(
+      (cusp) =>
+        convertLongitudeToZodiac(
+          cusp,
+          zodiac,
+          ayanamshaDegrees,
+        ),
     );
 
   return {
+    zodiac,
+
+    ayanamsha:
+      zodiac === 'sidereal'
+        ? ayanamsha
+        : null,
+
+    ayanamshaDegrees:
+      zodiac === 'sidereal'
+        ? ayanamshaDegrees
+        : null,
+
     angles,
-    houseCusps,
+
+    houseCusps:
+      zodiacHouseCusps,
+
     placements,
+
     houseInterpretations,
   };
 }
@@ -626,14 +1013,18 @@ export default async function handler(
   res: VercelResponse,
 ) {
   try {
-    if (req.method === 'POST') {
+    if (
+      req.method === 'POST'
+    ) {
       return await handleCreate(
         req,
         res,
       );
     }
 
-    if (req.method === 'GET') {
+    if (
+      req.method === 'GET'
+    ) {
       return await handleList(
         req,
         res,
@@ -693,13 +1084,50 @@ async function handleCreate(
     body.houseSystem ??
     'whole-sign';
 
+  /*
+   * Tropical remains the default so existing frontend
+   * requests continue producing the same zodiac system.
+   */
+  const zodiac =
+    body.zodiac ??
+    'tropical';
+
+  /*
+   * Lahiri is currently the only supported sidereal
+   * ayanamsha.
+   */
+  const ayanamsha =
+    body.ayanamsha ??
+    'lahiri';
+
+  if (
+    zodiac !== 'tropical' &&
+    zodiac !== 'sidereal'
+  ) {
+    return res.status(400).json({
+      error:
+        'zodiac must be tropical or sidereal.',
+    });
+  }
+
+  if (
+    ayanamsha !== 'lahiri'
+  ) {
+    return res.status(400).json({
+      error:
+        'Currently only the Lahiri ayanamsha is supported.',
+    });
+  }
+
   const isoDateTime =
     birthTimeKnown
       ? `${body.birthDate}T${body.birthTime}:00Z`
       : `${body.birthDate}T12:00:00Z`;
 
   const date =
-    new Date(isoDateTime);
+    new Date(
+      isoDateTime,
+    );
 
   if (
     Number.isNaN(
@@ -719,6 +1147,8 @@ async function handleCreate(
       body.birthLng,
       birthTimeKnown,
       houseSystem,
+      zodiac,
+      ayanamsha,
     );
 
   const chartId =
