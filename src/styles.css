@@ -974,3 +974,448 @@ dialog.sheet::backdrop {
   font-size: 14px;
   z-index: 40;
 }
+
+/* ================================================================
+   NATAL CHART
+   ================================================================ */
+
+.chart-page {
+  width: 100%;
+}
+
+.chart-form,
+.chart-results {
+  width: 100%;
+}
+
+.chart-intro {
+  padding: 8px 0 18px;
+}
+
+.chart-eyebrow {
+  display: inline-block;
+  color: var(--brand);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.chart-intro h2,
+.chart-results-header h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.chart-intro p {
+  margin-top: 8px;
+  max-width: 560px;
+}
+
+.chart-section {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+
+.chart-section-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 12px;
+  font-family: var(--serif);
+  font-size: 19px;
+}
+
+.chart-section-title > span {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: var(--surface2);
+  color: var(--brand);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.chart-help {
+  margin: 5px 0 0;
+}
+
+.chart-location-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-location-row .field {
+  flex: 1;
+  min-width: 0;
+}
+
+.chart-selected-location {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--surface2);
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.chart-selected-location span {
+  color: var(--brand);
+  font-weight: 800;
+}
+
+.chart-location-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(58, 44, 55, 0.08);
+}
+
+.chart-location-results button {
+  width: 100%;
+  border: 0;
+  border-radius: 11px;
+  padding: 10px 12px;
+  background: transparent;
+  text-align: left;
+}
+
+.chart-location-results button:hover {
+  background: var(--surface2);
+}
+
+.chart-zodiac-toggle {
+  margin: 0 0 9px;
+}
+
+.chart-zodiac-note {
+  margin: 10px 0 0;
+}
+
+.chart-zodiac-note p {
+  margin: 3px 0 0;
+}
+
+.chart-error {
+  margin: 14px 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(179, 38, 74, 0.08);
+  color: #b3264a;
+  font-weight: 600;
+}
+
+.chart-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.chart-results {
+  margin-top: 42px;
+  padding-top: 28px;
+  border-top: 2px solid var(--line);
+}
+
+.chart-results-header {
+  margin-bottom: 18px;
+}
+
+.chart-results-header p {
+  margin: 5px 0 0;
+  font-size: 14px;
+}
+
+.chart-big-three {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin: 18px 0 30px;
+}
+
+.chart-big-three-card {
+  min-width: 0;
+  padding: 17px 10px;
+  border-radius: 20px;
+  background: var(--surface2);
+  text-align: center;
+  border: 1px solid var(--line);
+}
+
+.chart-big-three-card.chart-sun {
+  background: color-mix(in srgb, var(--moon) 22%, var(--surface));
+}
+
+.chart-big-three-card.chart-moon {
+  background: color-mix(in srgb, var(--blush) 30%, var(--surface));
+}
+
+.chart-big-three-card.chart-rising {
+  background: color-mix(in srgb, var(--brand) 12%, var(--surface));
+}
+
+.chart-symbol {
+  display: block;
+  margin-bottom: 3px;
+  font-family: var(--serif);
+  font-size: 24px;
+}
+
+.chart-card-label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chart-big-three-card strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.chart-big-three-card > span:last-child {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.chart-subsection {
+  margin-top: 28px;
+}
+
+.chart-subsection-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.chart-subsection-heading h3 {
+  margin: 0;
+}
+
+.chart-subsection-heading > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.chart-planet-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+
+.chart-planet-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  min-height: 66px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--line);
+}
+
+.chart-planet-symbol {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  background: var(--surface2);
+  font-family: var(--serif);
+  font-size: 21px;
+}
+
+.chart-planet-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chart-planet-main strong {
+  font-size: 15px;
+}
+
+.chart-planet-main span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.chart-planet-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.chart-retrograde {
+  color: var(--brand);
+  font-weight: 800;
+}
+
+.chart-angle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.chart-angle-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 15px;
+  border-radius: 17px;
+  background: var(--surface2);
+}
+
+.chart-angle-symbol {
+  color: var(--brand);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.chart-angle-card strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 17px;
+}
+
+.chart-angle-card > span:last-child {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.chart-house-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.chart-house-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.chart-house-card summary {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px;
+  list-style: none;
+}
+
+.chart-house-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.chart-house-card summary::after {
+  content: '+';
+  margin-left: auto;
+  color: var(--brand);
+  font-size: 19px;
+  font-weight: 400;
+}
+
+.chart-house-card[open] summary::after {
+  content: '−';
+}
+
+.chart-house-number {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface2);
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chart-house-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chart-house-title strong {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.chart-house-title small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.chart-house-card > p {
+  margin: 0;
+  padding: 0 14px 14px 55px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.chart-ayanamsha-note {
+  margin-top: 22px;
+}
+
+.chart-ayanamsha-note p {
+  margin: 3px 0 0;
+}
+
+@media (max-width: 480px) {
+  .chart-big-three {
+    gap: 6px;
+  }
+
+  .chart-big-three-card {
+    padding: 14px 6px;
+  }
+
+  .chart-big-three-card strong {
+    font-size: 15px;
+  }
+
+  .chart-planet-card {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .chart-planet-symbol {
+    width: 35px;
+    height: 35px;
+  }
+
+  .chart-planet-meta {
+    grid-column: 2;
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
