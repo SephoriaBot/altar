@@ -7,49 +7,48 @@ interface LocationResult {
   lng: number;
 }
 
+type ZodiacSystem = 'tropical' | 'sidereal';
+
 interface ChartPlacement {
   body: string;
   sign: string;
   degree: number;
   longitude: number;
+  tropicalLongitude?: number;
+  zodiacLongitude?: number;
   house: number | null;
   retrograde: boolean;
+}
+
+interface HouseInterpretation {
+  house: number;
+  name: string;
+  sign: string;
+  title: string;
+  description: string;
 }
 
 interface SavedChart {
   id: string;
   chart: {
+    zodiac?: ZodiacSystem;
+    ayanamsha?: string | null;
+    ayanamshaDegrees?: number | null;
+
     angles: {
       ascendant: number;
       midheaven: number;
       ramc: number;
       obliquity: number;
+      zodiacAscendant?: number;
+      zodiacMidheaven?: number;
     } | null;
+
     houseCusps: number[] | null;
+    houseInterpretations?: HouseInterpretation[];
     placements: ChartPlacement[];
   };
 }
-
-const fieldStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.35rem',
-  marginBottom: '1rem',
-};
-
-const rowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  marginBottom: '1rem',
-};
-
-const checkboxRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  marginBottom: '1rem',
-};
 
 const planetNames: Record<string, string> = {
   sun: 'Sun',
@@ -64,9 +63,36 @@ const planetNames: Record<string, string> = {
   pluto: 'Pluto',
 };
 
+const planetSymbols: Record<string, string> = {
+  sun: '☉',
+  moon: '☽',
+  mercury: '☿',
+  venus: '♀',
+  mars: '♂',
+  jupiter: '♃',
+  saturn: '♄',
+  uranus: '♅',
+  neptune: '♆',
+  pluto: '♇',
+};
+
+const planetClasses: Record<string, string> = {
+  sun: 'chart-sun',
+  moon: 'chart-moon',
+  mercury: 'chart-mercury',
+  venus: 'chart-venus',
+  mars: 'chart-mars',
+  jupiter: 'chart-jupiter',
+  saturn: 'chart-saturn',
+  uranus: 'chart-uranus',
+  neptune: 'chart-neptune',
+  pluto: 'chart-pluto',
+};
+
 function formatDegree(degree: number): string {
-  const degrees = Math.floor(degree);
-  const minutes = Math.round((degree - degrees) * 60);
+  const safe = Math.max(0, Math.min(29.999999, degree));
+  const degrees = Math.floor(safe);
+  const minutes = Math.round((safe - degrees) * 60);
 
   if (minutes === 60) {
     return `${degrees + 1}° 00'`;
@@ -98,23 +124,38 @@ function formatAngle(angle: number): string {
   return `${signs[signIndex]} ${formatDegree(degree)}`;
 }
 
+function formatAyanamsha(degrees: number | null | undefined): string {
+  if (degrees == null) return '';
+
+  const whole = Math.floor(degrees);
+  const minutes = Math.round((degrees - whole) * 60);
+
+  return `${whole}° ${String(minutes).padStart(2, '0')}'`;
+}
+
 export function BirthChartForm() {
   const [label, setLabel] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [birthTime, setBirthTime] = useState('');
   const [timeUnknown, setTimeUnknown] = useState(false);
+
   const [houseSystem, setHouseSystem] =
     useState<'whole-sign' | 'equal'>('whole-sign');
 
+  const [zodiac, setZodiac] =
+    useState<ZodiacSystem>('tropical');
+
   const [locationQuery, setLocationQuery] = useState('');
-  const [locationResults, setLocationResults] = useState<LocationResult[]>([]);
+  const [locationResults, setLocationResults] =
+    useState<LocationResult[]>([]);
   const [selectedLocation, setSelectedLocation] =
     useState<LocationResult | null>(null);
   const [searching, setSearching] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [savedChart, setSavedChart] = useState<SavedChart | null>(null);
+  const [savedChart, setSavedChart] =
+    useState<SavedChart | null>(null);
 
   async function searchLocation() {
     if (locationQuery.trim().length < 2) return;
@@ -132,7 +173,7 @@ export function BirthChartForm() {
       }
 
       const data = await res.json();
-      setLocationResults(data.results);
+      setLocationResults(data.results ?? []);
     } catch (err) {
       setError(
         err instanceof Error
@@ -202,7 +243,9 @@ export function BirthChartForm() {
           birthLat: selectedLocation.lat,
           birthLng: selectedLocation.lng,
           birthLocationLabel: selectedLocation.label,
-          houseSystem,
+          houseSystem: timeUnknown ? undefined : houseSystem,
+          zodiac,
+          ayanamsha: zodiac === 'sidereal' ? 'lahiri' : undefined,
         }),
       });
 
@@ -232,86 +275,130 @@ export function BirthChartForm() {
     }
   }
 
+  const chart = savedChart?.chart;
+
+  const ascendant =
+    chart?.angles?.zodiacAscendant ??
+    chart?.angles?.ascendant;
+
+  const midheaven =
+    chart?.angles?.zodiacMidheaven ??
+    chart?.angles?.midheaven;
+
+  const sun = chart?.placements.find(
+    (p) => p.body === 'sun',
+  );
+
+  const moon = chart?.placements.find(
+    (p) => p.body === 'moon',
+  );
+
   return (
-    <div>
-      <form
-        onSubmit={handleSubmit}
-        style={{ maxWidth: '28rem' }}
-      >
-        <div style={fieldStyle}>
-          <label htmlFor="chart-label">
-            Chart label (optional)
+    <div className="chart-page">
+      <form onSubmit={handleSubmit} className="chart-form">
+        <div className="chart-intro">
+          <span className="chart-eyebrow">
+            ✦ Birth Chart
+          </span>
+
+          <h2>Create your natal chart</h2>
+
+          <p className="muted">
+            Enter your birth details to calculate your planetary
+            placements, houses, and chart angles.
+          </p>
+        </div>
+
+        <div className="chart-section">
+          <div className="chart-section-title">
+            <span>01</span>
+            Birth details
+          </div>
+
+          <label className="lbl" htmlFor="chart-label">
+            Chart name
           </label>
 
           <input
             id="chart-label"
+            className="field"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            placeholder="My chart"
+            placeholder="My natal chart"
           />
-        </div>
 
-        <div style={fieldStyle}>
-          <label htmlFor="birth-date">
+          <label className="lbl" htmlFor="birth-date">
             Birth date
           </label>
 
           <input
             id="birth-date"
+            className="field"
             type="date"
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
             required
           />
-        </div>
 
-        <div style={checkboxRowStyle}>
-          <input
-            id="time-unknown"
-            type="checkbox"
-            checked={timeUnknown}
-            onChange={(e) => setTimeUnknown(e.target.checked)}
-          />
-
-          <label htmlFor="time-unknown">
-            I don't know the exact birth time
-          </label>
-        </div>
-
-        {!timeUnknown && (
-          <div style={fieldStyle}>
-            <label htmlFor="birth-time">
-              Birth time (local time at birthplace)
-            </label>
-
+          <label className="check">
             <input
-              id="birth-time"
-              type="time"
-              value={birthTime}
-              onChange={(e) => setBirthTime(e.target.value)}
+              type="checkbox"
+              checked={timeUnknown}
+              onChange={(e) =>
+                setTimeUnknown(e.target.checked)
+              }
             />
-          </div>
-        )}
-
-        <div style={fieldStyle}>
-          <label htmlFor="birth-location">
-            Birth location
+            <span>I don't know the exact birth time</span>
           </label>
 
-          <div style={rowStyle}>
+          {!timeUnknown && (
+            <div>
+              <label className="lbl" htmlFor="birth-time">
+                Birth time
+              </label>
+
+              <input
+                id="birth-time"
+                className="field"
+                type="time"
+                value={birthTime}
+                onChange={(e) =>
+                  setBirthTime(e.target.value)
+                }
+              />
+
+              <p className="small muted chart-help">
+                Use the local time at your birthplace.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="chart-section">
+          <div className="chart-section-title">
+            <span>02</span>
+            Birthplace
+          </div>
+
+          <label className="lbl" htmlFor="birth-location">
+            City, state or country
+          </label>
+
+          <div className="chart-location-row">
             <input
               id="birth-location"
+              className="field"
               value={locationQuery}
               onChange={(e) => {
                 setLocationQuery(e.target.value);
                 setSelectedLocation(null);
               }}
-              placeholder="City, State/Country"
-              style={{ flex: 1 }}
+              placeholder="Richmond, Virginia"
             />
 
             <button
               type="button"
+              className="btn sm"
               onClick={searchLocation}
               disabled={searching}
             >
@@ -319,170 +406,339 @@ export function BirthChartForm() {
             </button>
           </div>
 
+          {selectedLocation && (
+            <div className="chart-selected-location">
+              <span>✓</span>
+              {selectedLocation.label}
+            </div>
+          )}
+
           {locationResults.length > 0 && (
-            <ul
-              style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.25rem',
-              }}
-            >
+            <div className="chart-location-results">
               {locationResults.map((loc, i) => (
-                <li key={i}>
-                  <button
-                    type="button"
-                    onClick={() => pickLocation(loc)}
-                    style={{
-                      textAlign: 'left',
-                      width: '100%',
-                    }}
-                  >
-                    {loc.label}
-                  </button>
-                </li>
+                <button
+                  key={`${loc.label}-${i}`}
+                  type="button"
+                  onClick={() => pickLocation(loc)}
+                >
+                  {loc.label}
+                </button>
               ))}
-            </ul>
+            </div>
+          )}
+        </div>
+
+        <div className="chart-section">
+          <div className="chart-section-title">
+            <span>03</span>
+            Zodiac
+          </div>
+
+          <div className="seg chart-zodiac-toggle">
+            <button
+              type="button"
+              aria-pressed={zodiac === 'tropical'}
+              onClick={() => setZodiac('tropical')}
+            >
+              Tropical
+            </button>
+
+            <button
+              type="button"
+              aria-pressed={zodiac === 'sidereal'}
+              onClick={() => setZodiac('sidereal')}
+            >
+              Sidereal
+            </button>
+          </div>
+
+          {zodiac === 'tropical' ? (
+            <p className="small muted">
+              Uses the tropical zodiac, aligned with the
+              seasonal equinoxes.
+            </p>
+          ) : (
+            <div className="note chart-zodiac-note">
+              <strong>Sidereal · Lahiri</strong>
+              <p>
+                Uses the Lahiri ayanamsha to account for the
+                difference between the tropical and sidereal
+                zodiacs.
+              </p>
+            </div>
           )}
         </div>
 
         {!timeUnknown && (
-          <div style={fieldStyle}>
-            <label htmlFor="house-system">
-              House system
-            </label>
+          <div className="chart-section">
+            <div className="chart-section-title">
+              <span>04</span>
+              Houses
+            </div>
 
-            <select
-              id="house-system"
-              value={houseSystem}
-              onChange={(e) =>
-                setHouseSystem(
-                  e.target.value as 'whole-sign' | 'equal',
-                )
-              }
-            >
-              <option value="whole-sign">
+            <div className="seg">
+              <button
+                type="button"
+                aria-pressed={houseSystem === 'whole-sign'}
+                onClick={() =>
+                  setHouseSystem('whole-sign')
+                }
+              >
                 Whole Sign
-              </option>
+              </button>
 
-              <option value="equal">
+              <button
+                type="button"
+                aria-pressed={houseSystem === 'equal'}
+                onClick={() => setHouseSystem('equal')}
+              >
                 Equal
-              </option>
-            </select>
+              </button>
+            </div>
           </div>
         )}
 
         {error && (
-          <p role="alert" style={{ marginBottom: '1rem' }}>
+          <div className="chart-error" role="alert">
             {error}
-          </p>
+          </div>
         )}
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Saving…' : 'Calculate chart'}
+        <button
+          type="submit"
+          className="btn chart-submit"
+          disabled={submitting}
+        >
+          {submitting
+            ? 'Calculating chart…'
+            : 'Calculate natal chart'}
         </button>
       </form>
 
-      {savedChart && (
-        <section
-          style={{
-            marginTop: '2rem',
-            maxWidth: '42rem',
-          }}
-        >
-          <h3>
-            {label || 'Natal Chart'}
-          </h3>
+      {chart && (
+        <section className="chart-results">
+          <div className="chart-results-header">
+            <span className="chart-eyebrow">
+              ✦ Your chart
+            </span>
 
-          <p
-            style={{
-              marginTop: '-0.5rem',
-              marginBottom: '1.5rem',
-              opacity: 0.7,
-            }}
-          >
-            {timeUnknown
-              ? 'Birth time unknown — planetary positions shown without houses.'
-              : 'Planetary positions and chart angles'}
-          </p>
+            <h2>{label || 'Natal Chart'}</h2>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns:
-                'repeat(auto-fit, minmax(12rem, 1fr))',
-              gap: '0.75rem',
-            }}
-          >
-            {savedChart.chart.placements.map((placement) => (
-              <div
-                key={placement.body}
-                style={{
-                  border: '1px solid rgba(0,0,0,0.12)',
-                  borderRadius: '0.75rem',
-                  padding: '0.9rem 1rem',
-                }}
-              >
-                <strong>
-                  {planetNames[placement.body] ??
-                    placement.body}
-                </strong>
-
-                <div style={{ marginTop: '0.3rem' }}>
-                  {placement.sign}{' '}
-                  {formatDegree(placement.degree)}
-                </div>
-
-                <div
-                  style={{
-                    fontSize: '0.85rem',
-                    opacity: 0.65,
-                    marginTop: '0.25rem',
-                  }}
-                >
-                  {placement.retrograde
-                    ? 'Retrograde'
-                    : 'Direct'}
-
-                  {placement.house !== null &&
-                    ` · House ${placement.house}`}
-                </div>
-              </div>
-            ))}
+            <p className="muted">
+              {chart.zodiac === 'sidereal'
+                ? 'Sidereal zodiac · Lahiri ayanamsha'
+                : 'Tropical zodiac'}
+              {!timeUnknown &&
+                ` · ${
+                  houseSystem === 'whole-sign'
+                    ? 'Whole Sign'
+                    : 'Equal'
+                } houses`}
+            </p>
           </div>
 
-          {savedChart.chart.angles && (
-            <div style={{ marginTop: '1.5rem' }}>
-              <h4>Chart Angles</h4>
+          <div className="chart-big-three">
+            <div className="chart-big-three-card chart-sun">
+              <span className="chart-symbol">☉</span>
+              <span className="chart-card-label">Sun</span>
 
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns:
-                    'repeat(auto-fit, minmax(12rem, 1fr))',
-                  gap: '0.75rem',
-                }}
-              >
-                <div>
-                  <strong>Ascendant</strong>
-                  <div>
-                    {formatAngle(
-                      savedChart.chart.angles.ascendant,
+              <strong>
+                {sun?.sign ?? '—'}
+              </strong>
+
+              {sun && (
+                <span>
+                  {formatDegree(sun.degree)}
+                </span>
+              )}
+            </div>
+
+            <div className="chart-big-three-card chart-moon">
+              <span className="chart-symbol">☽</span>
+              <span className="chart-card-label">Moon</span>
+
+              <strong>
+                {moon?.sign ?? '—'}
+              </strong>
+
+              {moon && (
+                <span>
+                  {formatDegree(moon.degree)}
+                </span>
+              )}
+            </div>
+
+            <div className="chart-big-three-card chart-rising">
+              <span className="chart-symbol">↑</span>
+              <span className="chart-card-label">
+                Rising
+              </span>
+
+              <strong>
+                {ascendant != null
+                  ? formatAngle(ascendant).split(' ')[0]
+                  : '—'}
+              </strong>
+
+              {ascendant != null && (
+                <span>
+                  {formatAngle(ascendant)
+                    .split(' ')
+                    .slice(1)
+                    .join(' ')}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="chart-subsection">
+            <div className="chart-subsection-heading">
+              <h3>Planetary placements</h3>
+              <span>
+                {chart.placements.length} placements
+              </span>
+            </div>
+
+            <div className="chart-planet-list">
+              {chart.placements.map((placement) => (
+                <div
+                  key={placement.body}
+                  className={`chart-planet-card ${
+                    planetClasses[placement.body] ?? ''
+                  }`}
+                >
+                  <div className="chart-planet-symbol">
+                    {planetSymbols[placement.body] ?? '✦'}
+                  </div>
+
+                  <div className="chart-planet-main">
+                    <strong>
+                      {planetNames[placement.body] ??
+                        placement.body}
+                    </strong>
+
+                    <span>
+                      {placement.sign}{' '}
+                      {formatDegree(placement.degree)}
+                    </span>
+                  </div>
+
+                  <div className="chart-planet-meta">
+                    {placement.house !== null && (
+                      <span>
+                        House {placement.house}
+                      </span>
+                    )}
+
+                    {placement.retrograde && (
+                      <span className="chart-retrograde">
+                        ℞ Retrograde
+                      </span>
                     )}
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
 
-                <div>
+          {chart.angles && (
+            <div className="chart-subsection">
+              <div className="chart-subsection-heading">
+                <h3>Chart angles</h3>
+              </div>
+
+              <div className="chart-angle-grid">
+                <div className="chart-angle-card">
+                  <span className="chart-angle-symbol">
+                    ASC
+                  </span>
+
+                  <strong>Ascendant</strong>
+
+                  <span>
+                    {ascendant != null
+                      ? formatAngle(ascendant)
+                      : '—'}
+                  </span>
+                </div>
+
+                <div className="chart-angle-card">
+                  <span className="chart-angle-symbol">
+                    MC
+                  </span>
+
                   <strong>Midheaven</strong>
-                  <div>
-                    {formatAngle(
-                      savedChart.chart.angles.midheaven,
-                    )}
-                  </div>
+
+                  <span>
+                    {midheaven != null
+                      ? formatAngle(midheaven)
+                      : '—'}
+                  </span>
                 </div>
               </div>
+            </div>
+          )}
+
+          {!timeUnknown &&
+            chart.houseInterpretations &&
+            chart.houseInterpretations.length > 0 && (
+              <div className="chart-subsection">
+                <div className="chart-subsection-heading">
+                  <h3>House meanings</h3>
+                  <span>
+                    {chart.zodiac === 'sidereal'
+                      ? 'Sidereal signs'
+                      : 'Tropical signs'}
+                  </span>
+                </div>
+
+                <div className="chart-house-list">
+                  {chart.houseInterpretations.map((house) => (
+                    <details
+                      key={house.house}
+                      className="chart-house-card"
+                    >
+                      <summary>
+                        <span className="chart-house-number">
+                          {house.house}
+                        </span>
+
+                        <span className="chart-house-title">
+                          <strong>{house.name}</strong>
+                          <small>
+                            {house.sign} · {house.title}
+                          </small>
+                        </span>
+                      </summary>
+
+                      <p>{house.description}</p>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          {chart.zodiac === 'sidereal' && (
+            <div className="note chart-ayanamsha-note">
+              <strong>Sidereal calculation</strong>
+
+              <p>
+                Lahiri ayanamsha:{' '}
+                {formatAyanamsha(
+                  chart.ayanamshaDegrees,
+                )}
+              </p>
+            </div>
+          )}
+
+          {timeUnknown && (
+            <div className="note">
+              <strong>Birth time unknown</strong>
+              <p>
+                Planetary positions can still be calculated,
+                but houses and chart angles require a known
+                birth time.
+              </p>
             </div>
           )}
         </section>
