@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/react';
 import { localBirthTimeToUtc } from '../lib/timezone';
 
@@ -158,6 +158,43 @@ const { getToken, isSignedIn } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [savedChart, setSavedChart] =
     useState<SavedChart | null>(null);
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      setSavedChart(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadSavedChart() {
+      try {
+        const token = await getToken();
+
+        const res = await fetch('/api/charts', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        if (!cancelled && data.charts?.length) {
+          setSavedChart(data.charts[0]);
+        }
+      } catch {
+        // Ignore load errors; the user can still create a new chart.
+      }
+    }
+
+    void loadSavedChart();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getToken, isSignedIn]);
 
   async function searchLocation() {
     if (locationQuery.trim().length < 2) return;
