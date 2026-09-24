@@ -1205,6 +1205,7 @@ async function handleCreate(
       (
         id,
 user_id,
+chart_data,
         label,
         birth_date,
         birth_time,
@@ -1217,13 +1218,12 @@ user_id,
         midheaven,
         ramc
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       chartId,
-
 userId,
-
-      body.label ?? null,
+JSON.stringify(chart),
+body.label ?? null,
 
       body.birthDate,
 
@@ -1330,23 +1330,9 @@ async function handleList(
   const charts = [];
 
   for (const row of chartsResult.rows) {
-    const placementsResult = await db.execute({
-      sql: `
-        SELECT
-          body,
-          sign,
-          degree,
-          longitude,
-          house,
-          retrograde
-        FROM chart_placements
-        WHERE chart_id = ?
-        ORDER BY rowid
-      `,
-      args: [row.id],
-    });
+    
 
-    charts.push({
+        charts.push({
       id: String(row.id),
       label: row.label,
       birthDate: row.birth_date,
@@ -1356,42 +1342,9 @@ async function handleList(
       birthLng: Number(row.birth_lng),
       birthLocationLabel: row.birth_location_label,
       houseSystem: row.house_system,
-
-      chart: {
-        zodiac: 'tropical',
-        ayanamsha: null,
-        ayanamshaDegrees: null,
-
-        angles:
-          row.ascendant != null
-            ? {
-                ascendant: Number(row.ascendant),
-                midheaven:
-                  row.midheaven != null
-                    ? Number(row.midheaven)
-                    : 0,
-                ramc:
-                  row.ramc != null
-                    ? Number(row.ramc)
-                    : 0,
-                obliquity: 0,
-              }
-            : null,
-
-        houseCusps: null,
-
-        placements: placementsResult.rows.map((placement) => ({
-          body: String(placement.body),
-          sign: String(placement.sign),
-          degree: Number(placement.degree),
-          longitude: Number(placement.longitude),
-          house:
-            placement.house != null
-              ? Number(placement.house)
-              : null,
-          retrograde: Boolean(placement.retrograde),
-        })),
-      },
+      chart: row.chart_data
+        ? JSON.parse(String(row.chart_data))
+        : undefined,
     });
   }
 
