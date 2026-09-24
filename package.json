@@ -20,7 +20,7 @@
 "@types/tz-lookup": "^6.1.2",
 "date-fns-tz": "^3.2.0",
 "@clerk/backend": "^2.20.0",
-"@clerk/react": "^5.57.0"
+"@clerk/react": "^5.53.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.2",
