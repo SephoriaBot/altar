@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { useAuth } from '@clerk/react';
 import type { Card, Entry, ReadState, Slot, Spread } from '../types';
 import { FOCUS, TH } from '../data/lore';
 import { SPREADS, getSpread } from '../data/spreads';
@@ -21,6 +22,7 @@ interface Props {
 
 export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Props) {
   const T = useTradition();
+const { getToken, isSignedIn } = useAuth();
   const reversals = read.rev && T.reversals;
   const sp = useMemo(() => getSpread(read.spread, read.free), [read.spread, read.free]);
   const slots = useMemo(() => normSlots(read.cards[sp.id], sp.n), [read.cards, sp]);
@@ -84,19 +86,42 @@ export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Prop
   };
 
   const save = async () => {
-    setSaving(true);
-    setSaveMsg(null);
-    try {
-      await saveReadingRemote({ spreadId: sp.id, spreadName: sp.name, question: question.trim(), notes: notes.trim(), cards: slots });
-      setSaveMsg({ ok: true, text: 'Saved to your journal.' });
-      setQuestion('');
-      setNotes('');
-    } catch (e) {
-      setSaveMsg({ ok: false, text: e instanceof Error ? e.message : 'Could not save.' });
-    } finally {
-      setSaving(false);
+  setSaving(true);
+  setSaveMsg(null);
+
+  try {
+    if (!isSignedIn) {
+      setSaveMsg({
+        ok: false,
+        text: 'Please sign in to save readings.',
+      });
+      return;
     }
-  };
+
+    await saveReadingRemote(getToken, {
+      spreadId: sp.id,
+      spreadName: sp.name,
+      question: question.trim(),
+      notes: notes.trim(),
+      cards: slots,
+    });
+
+    setSaveMsg({
+      ok: true,
+      text: 'Saved to your journal.',
+    });
+
+    setQuestion('');
+    setNotes('');
+  } catch (e) {
+    setSaveMsg({
+      ok: false,
+      text: e instanceof Error ? e.message : 'Could not save.',
+    });
+  } finally {
+    setSaving(false);
+  }
+};
 
   const filled = entries.length;
   return (
