@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { randomUUID } from 'crypto';
 import { createClient } from '@libsql/client';
 import { createRequire } from 'module';
+import { verifyToken } from '@clerk/backend';
 
 const require = createRequire(import.meta.url);
 const Astronomy = require('astronomy-engine');
@@ -1004,6 +1005,39 @@ function getDbClient() {
   });
 }
 
+async function getUserId(
+  req: VercelRequest,
+): Promise<string | null> {
+  const authorization =
+    req.headers.authorization;
+
+  if (
+    !authorization ||
+    !authorization.startsWith('Bearer ')
+  ) {
+    return null;
+  }
+
+  const token =
+    authorization
+      .slice('Bearer '.length)
+      .trim();
+
+  if (!token) return null;
+
+  try {
+    const verified =
+      await verifyToken(token, {
+        secretKey:
+          process.env.CLERK_SECRET_KEY,
+      });
+
+    return verified.sub || null;
+  } catch {
+    return null;
+  }
+}
+
 /* ================================================================
    API HANDLER
    ================================================================ */
@@ -1063,6 +1097,15 @@ async function handleCreate(
   req: VercelRequest,
   res: VercelResponse,
 ) {
+
+  const userId = await getUserId(req);
+
+  if (!userId) {
+    return res.status(401).json({
+      error: 'Please sign in to save a natal chart.',
+    });
+  }
+
   const body =
     req.body as CreateChartBody;
 
@@ -1161,6 +1204,7 @@ async function handleCreate(
     sql: `INSERT INTO natal_charts
       (
         id,
+user_id,
         label,
         birth_date,
         birth_time,
@@ -1173,9 +1217,11 @@ async function handleCreate(
         midheaven,
         ramc
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       chartId,
+
+userId,
 
       body.label ?? null,
 
@@ -1261,16 +1307,27 @@ async function handleList(
   req: VercelRequest,
   res: VercelResponse,
 ) {
-  const db =
-    getDbClient();
+  const userId = await getUserId(req);
 
-  const result =
-    await db.execute(
-      'SELECT * FROM natal_charts ORDER BY created_at DESC',
-    );
+  if (!userId) {
+    return res.status(401).json({
+      error: 'Please sign in to view your natal charts.',
+    });
+  }
+
+  const db = getDbClient();
+
+  const result = await db.execute({
+    sql: `
+      SELECT *
+      FROM natal_charts
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+    `,
+    args: [userId],
+  });
 
   return res.status(200).json({
-    charts:
-      result.rows,
+    charts: result.rows,
   });
 }
