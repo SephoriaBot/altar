@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAuth } from '@clerk/react';
 import { localBirthTimeToUtc } from '../lib/timezone';
 
 interface LocationResult {
@@ -134,6 +135,7 @@ function formatAyanamsha(degrees: number | null | undefined): string {
 }
 
 export function BirthChartForm() {
+const { getToken, isSignedIn } = useAuth();
   const [label, setLabel] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [birthTime, setBirthTime] = useState('');
@@ -213,9 +215,14 @@ export function BirthChartForm() {
       return;
     }
 
-    setSubmitting(true);
+    if (!isSignedIn) {
+  setError('Please sign in to save your natal chart.');
+  return;
+}
 
-    try {
+setSubmitting(true);
+
+try {
       const utcDate = timeUnknown
         ? null
         : localBirthTimeToUtc(
@@ -228,8 +235,9 @@ export function BirthChartForm() {
       const res = await fetch('/api/charts', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+  'Content-Type': 'application/json',
+  Authorization: `Bearer ${await getToken()}`,
+},
         body: JSON.stringify({
           label: label || undefined,
           birthDate: utcDate
