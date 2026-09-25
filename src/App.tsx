@@ -24,7 +24,13 @@ const TABS: [Tab, string, keyof typeof Icons][] = [
 export default function App() {
   const { isLoaded, isSignedIn } = useAuth();
 
-  const path = window.location.pathname;
+const [path, setPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn && path !== '/sign-in' && path !== '/sign-up') {
+      window.location.replace('/sign-in');
+    }
+  }, [isLoaded, isSignedIn, path]);
 
   const [tab, setTab] = useState<Tab>('spreads');
   const [openSpread, setOpenSpread] = useState<string | null>(null);
@@ -71,9 +77,10 @@ export default function App() {
                 <button
   type="button"
   onClick={() => {
-    window.history.pushState({}, '', '/sign-up');
-    setAuthMode('sign-up');
-  }}
+  window.history.pushState({}, '', '/sign-up');
+  setPath('/sign-up');
+  setAuthMode('sign-up');
+}}
 >
   Create an account
 </button>
@@ -87,9 +94,10 @@ export default function App() {
                 <button
   type="button"
   onClick={() => {
-    window.history.pushState({}, '', '/sign-in');
-    setAuthMode('sign-in');
-  }}
+  window.history.pushState({}, '', '/sign-in');
+  setPath('/sign-in');
+  setAuthMode('sign-in');
+}}
 >
   Sign in
 </button>
