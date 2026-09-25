@@ -24,7 +24,7 @@ const TABS: [Tab, string, keyof typeof Icons][] = [
 export default function App() {
   const { isLoaded, isSignedIn } = useAuth();
 
-
+  const path = window.location.pathname;
 
   const [tab, setTab] = useState<Tab>('spreads');
   const [openSpread, setOpenSpread] = useState<string | null>(null);
@@ -33,8 +33,9 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState('');
   const toastTimer = useRef<number | undefined>(undefined);
 
-  const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>('sign-in');
-
+  const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>(
+  window.location.pathname === '/sign-up' ? 'sign-up' : 'sign-in',
+);
   if (!isLoaded) {
     return (
       <div className="auth-page">
@@ -62,30 +63,36 @@ export default function App() {
             Your personal space for tarot readings, journals, and birth charts.
           </p>
 
-          {authMode === 'sign-in' ? (
+         {path === '/sign-up' || authMode === 'sign-up' ? (
             <>
-              <SignIn routing="path" />
+              <SignIn routing="path" path="/sign-in" />
               <p className="auth-switch">
                 New to Tarot Table?{' '}
                 <button
-                  type="button"
-                  onClick={() => setAuthMode('sign-up')}
-                >
-                  Create an account
-                </button>
+  type="button"
+  onClick={() => {
+    window.history.pushState({}, '', '/sign-up');
+    setAuthMode('sign-up');
+  }}
+>
+  Create an account
+</button>
               </p>
             </>
           ) : (
             <>
-             <SignUp routing="path" />
+             <SignUp routing="path" path="/sign-up" />
               <p className="auth-switch">
                 Already have an account?{' '}
                 <button
-                  type="button"
-                  onClick={() => setAuthMode('sign-in')}
-                >
-                  Sign in
-                </button>
+  type="button"
+  onClick={() => {
+    window.history.pushState({}, '', '/sign-in');
+    setAuthMode('sign-in');
+  }}
+>
+  Sign in
+</button>
               </p>
             </>
           )}
