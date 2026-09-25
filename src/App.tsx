@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { SignIn, SignUp, useAuth } from '@clerk/react';
 import type { Card, ReadState, SavedReading } from './types';
 import { CardDetail } from './components/CardDetail';
 import { CardsTab } from './components/CardsTab';
@@ -21,12 +22,77 @@ const TABS: [Tab, string, keyof typeof Icons][] = [
 ];
 
 export default function App() {
+  const { isLoaded, isSignedIn } = useAuth();
+
+
+
   const [tab, setTab] = useState<Tab>('spreads');
   const [openSpread, setOpenSpread] = useState<string | null>(null);
   const [read, setReadState] = useState<ReadState>(loadRead);
   const [infoId, setInfoId] = useState<number | null>(null);
   const [toastMsg, setToastMsg] = useState('');
   const toastTimer = useRef<number | undefined>(undefined);
+
+  const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>('sign-in');
+
+  if (!isLoaded) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card">
+          <div className="brand">
+            {Icons.moon}
+            Tarot Table
+          </div>
+          <p className="muted">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card">
+          <div className="brand">
+            {Icons.moon}
+            Tarot Table
+          </div>
+
+          <p className="auth-subtitle">
+            Your personal space for tarot readings, journals, and birth charts.
+          </p>
+
+          {authMode === 'sign-in' ? (
+            <>
+              <SignIn routing="virtual" />
+              <p className="auth-switch">
+                New to Tarot Table?{' '}
+                <button
+                  type="button"
+                  onClick={() => setAuthMode('sign-up')}
+                >
+                  Create an account
+                </button>
+              </p>
+            </>
+          ) : (
+            <>
+              <SignUp routing="virtual" />
+              <p className="auth-switch">
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => setAuthMode('sign-in')}
+                >
+                  Sign in
+                </button>
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => saveRead(read), [read]);
 
