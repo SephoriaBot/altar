@@ -177,7 +177,6 @@ export default function App() {
           ))}
         </div>
       </nav>
-
       <CardDetail card={infoId === null ? null : T.cards[infoId]} onClose={() => setInfoId(null)} onOpen={showCard} />
       {toastMsg && (
         <div className="toast" role="status">
