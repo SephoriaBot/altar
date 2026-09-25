@@ -51,7 +51,7 @@ export default function App() {
         <div className="auth-card">
           <div className="brand">
             {Icons.moon}
-            Tarot Table
+            Altar
           </div>
           <p className="muted">Loading...</p>
         </div>
@@ -65,7 +65,7 @@ export default function App() {
         <div className="auth-card">
           <div className="brand">
             {Icons.moon}
-            Tarot Table
+            Altar
           </div>
 
           <p className="auth-subtitle">
@@ -93,7 +93,7 @@ export default function App() {
             <>
               <SignIn routing="path" path="/sign-in" />
               <p className="auth-switch">
-                New to Tarot Table?{' '}
+                New to Altar?{' '}
                 <button
                   type="button"
                   onClick={() => {
@@ -141,7 +141,7 @@ export default function App() {
       <div className="shell">
         <div className="brand">
           {Icons.moon}
-          Tarot Table
+          Altar
           <UserButton />
         </div>
         <div className="trad">

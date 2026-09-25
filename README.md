@@ -1,4 +1,4 @@
-# Tarot Table
+# Altar
 
 A tarot reference and interpreter for readers who use physical cards. There is no virtual deck, shuffling or drawing. You look up spreads, lay your real cards out, type in what you drew, and get each card's meaning plus how the cards combine.
 
