@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { SignIn, SignUp, useAuth } from '@clerk/react';
+import { SignIn, SignUp, UserButton, useAuth } from '@clerk/react';
 import type { Card, ReadState, SavedReading } from './types';
 import { CardDetail } from './components/CardDetail';
 import { CardsTab } from './components/CardsTab';
@@ -142,6 +142,7 @@ export default function App() {
         <div className="brand">
           {Icons.moon}
           Tarot Table
+          <UserButton afterSignOutUrl="/sign-in" />
         </div>
         <div className="trad">
           <div className="seg" role="group" aria-label="Interpretation tradition">
