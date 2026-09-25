@@ -64,7 +64,7 @@ export default function App() {
 
           {authMode === 'sign-in' ? (
             <>
-              <SignIn routing="virtual" />
+              <SignIn routing="path" />
               <p className="auth-switch">
                 New to Tarot Table?{' '}
                 <button
@@ -77,7 +77,7 @@ export default function App() {
             </>
           ) : (
             <>
-              <SignUp routing="virtual" />
+             <SignUp routing="path" />
               <p className="auth-switch">
                 Already have an account?{' '}
                 <button
