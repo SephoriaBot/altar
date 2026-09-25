@@ -24,24 +24,27 @@ const TABS: [Tab, string, keyof typeof Icons][] = [
 export default function App() {
   const { isLoaded, isSignedIn } = useAuth();
 
-const [path, setPath] = useState(window.location.pathname);
-
-  useEffect(() => {
-    if (isLoaded && !isSignedIn && path !== '/sign-in' && path !== '/sign-up') {
-      window.location.replace('/sign-in');
-    }
-  }, [isLoaded, isSignedIn, path]);
-
+  const [path, setPath] = useState(window.location.pathname);
   const [tab, setTab] = useState<Tab>('spreads');
   const [openSpread, setOpenSpread] = useState<string | null>(null);
   const [read, setReadState] = useState<ReadState>(loadRead);
   const [infoId, setInfoId] = useState<number | null>(null);
   const [toastMsg, setToastMsg] = useState('');
   const toastTimer = useRef<number | undefined>(undefined);
-
   const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>(
-  window.location.pathname === '/sign-up' ? 'sign-up' : 'sign-in',
-);
+    window.location.pathname === '/sign-up' ? 'sign-up' : 'sign-in',
+  );
+
+  // Keep all hooks above any conditional return, or React throws
+  // "Rendered more hooks than during the previous render" on auth-state changes.
+  useEffect(() => {
+    if (isLoaded && !isSignedIn && path !== '/sign-in' && path !== '/sign-up') {
+      window.location.replace('/sign-in');
+    }
+  }, [isLoaded, isSignedIn, path]);
+
+  useEffect(() => saveRead(read), [read]);
+
   if (!isLoaded) {
     return (
       <div className="auth-page">
@@ -69,38 +72,38 @@ const [path, setPath] = useState(window.location.pathname);
             Your personal space for tarot readings, journals, and birth charts.
           </p>
 
-         {path === '/sign-up' || authMode === 'sign-up' ? (
+          {authMode === 'sign-up' ? (
+            <>
+              <SignUp routing="path" path="/sign-up" />
+              <p className="auth-switch">
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.history.pushState({}, '', '/sign-in');
+                    setPath('/sign-in');
+                    setAuthMode('sign-in');
+                  }}
+                >
+                  Sign in
+                </button>
+              </p>
+            </>
+          ) : (
             <>
               <SignIn routing="path" path="/sign-in" />
               <p className="auth-switch">
                 New to Tarot Table?{' '}
                 <button
-  type="button"
-  onClick={() => {
-  window.history.pushState({}, '', '/sign-up');
-  setPath('/sign-up');
-  setAuthMode('sign-up');
-}}
->
-  Create an account
-</button>
-              </p>
-            </>
-          ) : (
-            <>
-             <SignUp routing="path" path="/sign-up" />
-              <p className="auth-switch">
-                Already have an account?{' '}
-                <button
-  type="button"
-  onClick={() => {
-  window.history.pushState({}, '', '/sign-in');
-  setPath('/sign-in');
-  setAuthMode('sign-in');
-}}
->
-  Sign in
-</button>
+                  type="button"
+                  onClick={() => {
+                    window.history.pushState({}, '', '/sign-up');
+                    setPath('/sign-up');
+                    setAuthMode('sign-up');
+                  }}
+                >
+                  Create an account
+                </button>
               </p>
             </>
           )}
@@ -108,8 +111,6 @@ const [path, setPath] = useState(window.location.pathname);
       </div>
     );
   }
-
-  useEffect(() => saveRead(read), [read]);
 
   const T = TRADITIONS[read.tradition];
   const showCard = (c: Card) => setInfoId(c.id);
