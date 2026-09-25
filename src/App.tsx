@@ -142,7 +142,7 @@ export default function App() {
         <div className="brand">
           {Icons.moon}
           Tarot Table
-          <UserButton afterSignOutUrl="/sign-in" />
+          <UserButton />
         </div>
         <div className="trad">
           <div className="seg" role="group" aria-label="Interpretation tradition">
