@@ -6,6 +6,7 @@ export type CardId = string; // stable, tradition-neutral key, e.g. "major-00", 
 
 export interface CardMeaning {
   name: string;              // tradition's own name, e.g. "Le Bateleur" / "The Magician"
+  number?: string;           // tradition's own numbering, e.g. "VIII" (majors differ by tradition)
   upright: string;
   reversed?: string;         // omit for traditions that don't read reversals (most Marseille)
   keywords: string[];
