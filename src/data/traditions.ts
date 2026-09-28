@@ -7,6 +7,7 @@ import { CARDS } from './cards';
 import { BASICS, COURT, NUMT, PAIRS, SUITS } from './lore';
 import { M_BASICS, M_CARDS, M_COURT, M_NUMT, M_PAIRS, M_SUITS } from './marseille';
 import { T_BASICS, T_CARDS, T_COURT, T_NUMT, T_PAIRS, T_SUITS } from './thoth';
+import { E_BASICS, E_CARDS, E_COURT, E_PAIRS, E_SUITS } from './etteilla';
 
 export interface Tradition {
   id: TraditionId;
@@ -93,9 +94,27 @@ export const TRADITIONS: Record<TraditionId, Tradition> = {
     numerology: false,
     reversalsNote: 'The Thoth is read upright.',
   },
+  etteilla: {
+    id: 'etteilla',
+    label: 'Etteilla',
+    tagline: 'Etteilla: the first deck built for divination, read upright and reversed with plain, worldly meanings.',
+    cardsIntro: 'All 78 cards read in Etteilla\u2019s cartomancy style, upright and reversed. Search by name, number or suit.',
+    cards: E_CARDS,
+    byKey: byKeyOf(E_CARDS),
+    suits: E_SUITS,
+    numt: {},
+    court: E_COURT,
+    pairs: E_PAIRS,
+    pairMap: pairMapOf(E_PAIRS),
+    basics: E_BASICS,
+    elements: false,
+    reversals: true,
+    numerology: false,
+    reversalsNote: '',
+  },
 };
 
-export const TRADITION_IDS: TraditionId[] = ['rws', 'marseille', 'thoth'];
+export const TRADITION_IDS: TraditionId[] = ['rws', 'marseille', 'thoth', 'etteilla'];
 
 /** The tradition the app opens in the first time. */
 export const DEFAULT_TRADITION: TraditionId = 'rws';
