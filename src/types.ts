@@ -1,6 +1,6 @@
 export type Arc = 'major' | 'wands' | 'cups' | 'swords' | 'pents';
 export type Element = 'Fire' | 'Water' | 'Air' | 'Earth';
-export type TraditionId = 'rws' | 'marseille';
+export type TraditionId = 'rws' | 'marseille' | 'thoth';
 
 export interface SuitDef {
   name: string;

@@ -6,6 +6,7 @@ import type { Arc, Card, SuitDef, TraditionId } from '../types';
 import { CARDS } from './cards';
 import { BASICS, COURT, NUMT, PAIRS, SUITS } from './lore';
 import { M_BASICS, M_CARDS, M_COURT, M_NUMT, M_PAIRS, M_SUITS } from './marseille';
+import { T_BASICS, T_CARDS, T_COURT, T_NUMT, T_PAIRS, T_SUITS } from './thoth';
 
 export interface Tradition {
   id: TraditionId;
@@ -74,9 +75,27 @@ export const TRADITIONS: Record<TraditionId, Tradition> = {
     numerology: true,
     reversalsNote: 'Marseille reads every card upright.',
   },
+  thoth: {
+    id: 'thoth',
+    label: 'Thoth',
+    tagline: 'Thoth (Crowley/Harris): titles, sephiroth and decans, with elements and astrology. Every card is read upright.',
+    cardsIntro: 'All 78 cards in the Thoth tradition, with titles and astrology. Search by name, title, number or suit.',
+    cards: T_CARDS,
+    byKey: byKeyOf(T_CARDS),
+    suits: T_SUITS,
+    numt: T_NUMT,
+    court: T_COURT,
+    pairs: T_PAIRS,
+    pairMap: pairMapOf(T_PAIRS),
+    basics: T_BASICS,
+    elements: true,
+    reversals: false,
+    numerology: false,
+    reversalsNote: 'The Thoth is read upright.',
+  },
 };
 
-export const TRADITION_IDS: TraditionId[] = ['rws', 'marseille'];
+export const TRADITION_IDS: TraditionId[] = ['rws', 'marseille', 'thoth'];
 
 /** The tradition the app opens in the first time. */
 export const DEFAULT_TRADITION: TraditionId = 'rws';
