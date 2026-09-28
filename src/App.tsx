@@ -50,8 +50,7 @@ export default function App() {
       <div className="auth-page">
         <div className="auth-card">
           <div className="brand">
-            {Icons.moon}
-            Altar
+             <img src="/altartitle.png" alt="Altar" className="brand-logo" />
           </div>
           <p className="muted">Loading...</p>
         </div>
@@ -64,8 +63,7 @@ export default function App() {
       <div className="auth-page">
         <div className="auth-card">
           <div className="brand">
-            {Icons.moon}
-            Altar
+             <img src="/altartitle.png" alt="Altar" className="brand-logo" />
           </div>
 
           <p className="auth-subtitle">
@@ -140,8 +138,7 @@ export default function App() {
     <TraditionProvider value={T}>
       <div className="shell">
         <div className="brand">
-          {Icons.moon}
-          Altar
+ <img src="/altartitle.png" alt="Altar" className="brand-logo" />
           <UserButton />
         </div>
         <div className="trad">
