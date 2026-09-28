@@ -1419,3 +1419,8 @@ dialog.sheet::backdrop {
     flex-wrap: wrap;
   }
 }
+
+  .brand-logo {
+  height: 80px;
+  width: auto;
+}
