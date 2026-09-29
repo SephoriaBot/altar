@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '@clerk/clerk-react';
 import type { SavedReading } from '../types';
 import { useTradition } from '../lib/tradition';
 
@@ -15,7 +14,6 @@ export function HomeTab({
   onGoTo,
 }: HomeTabProps) {
   const T = useTradition();
-  const { getToken } = useAuth();
 
   const [chart, setChart] = useState<any | null>(null);
 
