@@ -113,15 +113,26 @@ export function HomeTab({
     </h2>
 
     <p>
-      {chart.placements?.find(
-        (placement: { body: string }) => placement.body === 'moon',
-      )?.sign ?? 'Moon'}
-      {' '}Moon
-      {' · '}
-      {chart.angles?.zodiacAscendant != null
-        ? 'Rising saved'
-        : 'Birth chart saved'}
-    </p>
+  {chart.placements?.find(
+    (placement: { body: string }) => placement.body === 'moon',
+  )?.sign ?? 'Moon'}
+  {' '}Moon
+  {' · '}
+  {chart.angles?.zodiacAscendant != null
+    ? `${Math.floor(chart.angles.zodiacAscendant / 30) === 0 ? 'Aries' :
+        Math.floor(chart.angles.zodiacAscendant / 30) === 1 ? 'Taurus' :
+        Math.floor(chart.angles.zodiacAscendant / 30) === 2 ? 'Gemini' :
+        Math.floor(chart.angles.zodiacAscendant / 30) === 3 ? 'Cancer' :
+        Math.floor(chart.angles.zodiacAscendant / 30) === 4 ? 'Leo' :
+        Math.floor(chart.angles.zodiacAscendant / 30) === 5 ? 'Virgo' :
+        Math.floor(chart.angles.zodiacAscendant / 30) === 6 ? 'Libra' :
+        Math.floor(chart.angles.zodiacAscendant / 30) === 7 ? 'Scorpio' :
+        Math.floor(chart.angles.zodiacAscendant / 30) === 8 ? 'Sagittarius' :
+        Math.floor(chart.angles.zodiacAscendant / 30) === 9 ? 'Capricorn' :
+        Math.floor(chart.angles.zodiacAscendant / 30) === 10 ? 'Aquarius' :
+        'Pisces'} Rising`
+    : 'Rising'}
+</p>
 
     <button type="button" onClick={() => onGoTo('chart')}>
       View your chart
