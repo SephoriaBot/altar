@@ -1,38 +1,30 @@
-:root {
-  /* ================================================================
-     ALTAR — ROMANTIC CELESTIAL PALETTE
-     ================================================================ */
+/* =========================================================
+   ALTAR — Romantic Celestial Theme
+   ========================================================= */
 
-  /* Main surfaces */
+:root {
   --bg: #F6EEF7;
   --surface: #FFFBFD;
   --surface2: #F0E2F0;
 
-  /* Text */
   --ink: #40364D;
   --muted: #8D788D;
-
-  /* Borders */
   --line: #DFC9DD;
 
-  /* Brand — deep amethyst */
   --brand: #6F5191;
   --on-brand: #FFFFFF;
 
-  /* Celestial gold */
   --moon: #E4C56F;
 
-  /* Romantic pink family */
   --blush: #E5A8BE;
   --blush-soft: #F3D8E2;
+
   --rose: #C987A5;
   --rose-dark: #98627D;
 
-  /* Lavender family */
   --lavender: #B6A0CE;
   --lavender-soft: #DED2E9;
 
-  /* Tarot cloth */
   --cloth: #4A3152;
   --cloth-ink: #FAF3F8;
   --cloth-line: #A77CA6;
@@ -42,60 +34,52 @@
   --cups: #A8C8E5;
   --swords: #92CDBD;
   --pents: #A8C99D;
-
-  /* Major arcana */
   --major: #E5B8CF;
 
-  /* Text used on pastel tarot cards */
   --pastel-ink: #40364D;
 
-  /* Typography */
   --serif: 'Young Serif', 'Iowan Old Style', Georgia, serif;
   --sans: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Nunito',
     'Segoe UI', system-ui, sans-serif;
 
   color-scheme: light;
 
-  box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Safe-area support */
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
 }
 
 
-/* ================================================================
+/* =========================================================
    DARK MODE
-   ================================================================ */
+   ========================================================= */
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root {
     --bg: #241B27;
     --surface: #302238;
     --surface2: #422D46;
 
     --ink: #F8EFF5;
     --muted: #CDB6C8;
-
     --line: #553D58;
 
-    /* Pink-violet brand in dark mode */
     --brand: #D5A1C0;
     --on-brand: #302238;
 
-    /* Celestial gold */
     --moon: #E7C875;
 
-    /* Pink */
     --blush: #9E607D;
     --blush-soft: #5A374B;
+
     --rose: #D59AB7;
     --rose-dark: #E1B0C7;
 
-    /* Lavender */
     --lavender: #A895C0;
     --lavender-soft: #4A3953;
 
-    /* Cloth */
     --cloth: #1C1420;
+    --cloth-ink: #F8EFF5;
     --cloth-line: #805A7D;
 
     --pastel-ink: #3A2E40;
@@ -104,33 +88,1027 @@
   }
 }
 
-:root[data-theme='dark'] {
-  --bg: #241B27;
-  --surface: #302238;
-  --surface2: #422D46;
 
-  --ink: #F8EFF5;
-  --muted: #CDB6C8;
+/* =========================================================
+   RESET / BASE
+   ========================================================= */
 
-  --line: #553D58;
+* {
+  box-sizing: border-box;
+}
 
-  --brand: #D5A1C0;
-  --on-brand: #302238;
+html {
+  min-height: 100%;
+  background: var(--bg);
+}
 
-  --moon: #E7C875;
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
 
-  --blush: #9E607D;
-  --blush-soft: #5A374B;
-  --rose: #D59AB7;
-  --rose-dark: #E1B0C7;
+  background: var(--bg);
+  color: var(--ink);
 
-  --lavender: #A895C0;
-  --lavender-soft: #4A3953;
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
 
-  --cloth: #1C1420;
-  --cloth-line: #805A7D;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 
-  --pastel-ink: #3A2E40;
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
 
-  color-scheme: dark;
+button {
+  color: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+h1 {
+  font-size: clamp(2rem, 7vw, 3rem);
+}
+
+h2 {
+  font-size: clamp(1.55rem, 5vw, 2.2rem);
+}
+
+h3 {
+  font-size: 1.3rem;
+}
+
+p {
+  margin: 0;
+}
+
+small {
+  font-size: 0.82rem;
+}
+
+
+/* =========================================================
+   APP SHELL
+   ========================================================= */
+
+#root {
+  min-height: 100vh;
+}
+
+.shell {
+  width: min(100%, 760px);
+  min-height: 100vh;
+  margin: 0 auto;
+
+  padding:
+    calc(18px + var(--safe-top))
+    18px
+    calc(100px + var(--safe-bottom));
+
+  position: relative;
+}
+
+main {
+  width: 100%;
+}
+
+
+/* =========================================================
+   BRAND / HEADER
+   ========================================================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  margin-bottom: 22px;
+}
+
+.brand-left {
+  min-width: 0;
+}
+
+.brand-name {
+  font-family: var(--serif);
+  font-size: 1.55rem;
+  color: var(--brand);
+  line-height: 1;
+}
+
+.brand-sub {
+  margin-top: 4px;
+
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  border: 1px solid var(--line);
+  border-radius: 50%;
+
+  background: var(--surface);
+
+  color: var(--brand);
+  font-family: var(--serif);
+  font-size: 1.2rem;
+}
+
+
+/* =========================================================
+   GENERAL CONTROLS
+   ========================================================= */
+
+.btn {
+  appearance: none;
+  border: 0;
+
+  min-height: 44px;
+  padding: 10px 16px;
+
+  border-radius: 14px;
+
+  background: var(--brand);
+  color: var(--on-brand);
+
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 0.92rem;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    background 0.15s ease;
+}
+
+.btn:hover {
+  opacity: 0.92;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--brand);
+  border: 1px solid var(--line);
+}
+
+.btn.ghost:hover {
+  background: var(--surface);
+}
+
+.link {
+  appearance: none;
+  border: 0;
+  padding: 0;
+
+  background: transparent;
+  color: var(--brand);
+
+  font: inherit;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================================
+   CHIPS
+   ========================================================= */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  appearance: none;
+
+  padding: 8px 12px;
+
+  border: 1px solid var(--line);
+  border-radius: 999px;
+
+  background: var(--surface);
+  color: var(--ink);
+
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.chip[aria-pressed='true'],
+.chip.active {
+  border-color: var(--brand);
+  background: var(--lavender-soft);
+  color: var(--brand);
+}
+
+
+/* =========================================================
+   SEGMENTED CONTROLS
+   ========================================================= */
+
+.seg {
+  display: flex;
+  width: 100%;
+
+  padding: 4px;
+
+  border: 1px solid var(--line);
+  border-radius: 15px;
+
+  background: var(--surface2);
+}
+
+.seg > button {
+  flex: 1;
+
+  min-height: 38px;
+
+  border: 0;
+  border-radius: 11px;
+
+  background: transparent;
+  color: var(--muted);
+
+  cursor: pointer;
+}
+
+.seg > button[aria-selected='true'] {
+  background: var(--surface);
+  color: var(--brand);
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   FORM FIELDS
+   ========================================================= */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.lbl {
+  color: var(--muted);
+
+  font-size: 0.76rem;
+  font-weight: 700;
+
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+
+  border: 1px solid var(--line);
+  border-radius: 13px;
+
+  background: var(--surface);
+  color: var(--ink);
+
+  padding: 11px 12px;
+
+  outline: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--lavender-soft);
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: var(--ink);
+}
+
+.check input {
+  width: auto;
+  accent-color: var(--brand);
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+}
+
+
+/* =========================================================
+   NOTES / CALLOUTS
+   ========================================================= */
+
+.note {
+  padding: 13px 15px;
+
+  border: 1px solid var(--line);
+  border-radius: 15px;
+
+  background: var(--surface2);
+
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.note strong {
+  color: var(--ink);
+}
+
+
+/* =========================================================
+   TAROT TABLE
+   ========================================================= */
+
+.cloth {
+  position: relative;
+
+  padding: 18px;
+
+  border: 1px solid var(--cloth-line);
+  border-radius: 24px;
+
+  background: var(--cloth);
+  color: var(--cloth-ink);
+
+  overflow: hidden;
+}
+
+.tbl {
+  display: grid;
+  gap: 14px;
+}
+
+.slot {
+  min-height: 130px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 14px;
+
+  border: 1px dashed var(--cloth-line);
+  border-radius: 18px;
+
+  background: rgba(255, 255, 255, 0.035);
+
+  text-align: center;
+}
+
+.slot.empty {
+  opacity: 0.6;
+}
+
+.slot-label {
+  margin-bottom: 5px;
+
+  color: var(--cloth-ink);
+
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+
+/* =========================================================
+   TAROT SUIT COLORS
+   ========================================================= */
+
+.s-major {
+  color: var(--major);
+}
+
+.s-wands {
+  color: var(--wands);
+}
+
+.s-cups {
+  color: var(--cups);
+}
+
+.s-swords {
+  color: var(--swords);
+}
+
+.s-pents {
+  color: var(--pents);
+}
+
+
+/* =========================================================
+   CARD / SUIT ROWS
+   ========================================================= */
+
+.srow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 12px 0;
+
+  border-bottom: 1px solid var(--line);
+}
+
+.srow:last-child {
+  border-bottom: 0;
+}
+
+.thumb {
+  width: 54px;
+  height: 76px;
+
+  flex: 0 0 auto;
+
+  border-radius: 8px;
+
+  background: var(--surface2);
+
+  overflow: hidden;
+}
+
+.cname {
+  flex: 1;
+  min-width: 0;
+
+  font-family: var(--serif);
+  font-size: 1rem;
+}
+
+.ori {
+  padding: 5px 9px;
+
+  border-radius: 999px;
+
+  background: var(--blush-soft);
+  color: var(--rose-dark);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 25px;
+  padding: 4px 9px;
+
+  border-radius: 999px;
+
+  background: var(--lavender-soft);
+  color: var(--brand);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   SPREAD LIST
+   ========================================================= */
+
+.spread-list {
+  display: grid;
+  gap: 10px;
+}
+
+.spread-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding: 14px;
+
+  border: 1px solid var(--line);
+  border-radius: 17px;
+
+  background: var(--surface);
+}
+
+.spread-item:hover {
+  border-color: var(--lavender);
+}
+
+.spread-title {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+}
+
+.spread-description {
+  margin-top: 3px;
+
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+
+/* =========================================================
+   NUMBERED STEPS
+   ========================================================= */
+
+.steps {
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+
+  display: grid;
+  gap: 12px;
+
+  counter-reset: steps;
+}
+
+.steps li {
+  position: relative;
+
+  padding-left: 42px;
+
+  counter-increment: steps;
+}
+
+.steps li::before {
+  content: counter(steps);
+
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  width: 29px;
+  height: 29px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: var(--moon);
+  color: #4A3A35;
+
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   RESULT CARDS
+   ========================================================= */
+
+.result-card {
+  padding: 18px;
+
+  border: 1px solid var(--line);
+  border-radius: 20px;
+
+  background: var(--surface);
+}
+
+.result-card + .result-card {
+  margin-top: 12px;
+}
+
+.result-card h3 {
+  margin-bottom: 8px;
+  color: var(--brand);
+}
+
+.result-card p {
+  color: var(--muted);
+}
+
+
+/* =========================================================
+   JOURNAL
+   ========================================================= */
+
+.journal {
+  display: grid;
+  gap: 12px;
+}
+
+.journal-card {
+  padding: 16px;
+
+  border: 1px solid var(--line);
+  border-radius: 18px;
+
+  background: var(--surface);
+}
+
+.journal-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.journal-date {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.journal-title {
+  margin-top: 5px;
+
+  font-family: var(--serif);
+  font-size: 1.1rem;
+}
+
+.journal-notes {
+  margin-top: 10px;
+
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+
+/* =========================================================
+   BOTTOM NAV
+   ========================================================= */
+
+.tabs {
+  position: fixed;
+
+  left: 50%;
+  bottom: calc(10px + var(--safe-bottom));
+
+  transform: translateX(-50%);
+
+  width: min(calc(100% - 24px), 720px);
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+
+  padding: 7px;
+
+  border: 1px solid var(--line);
+  border-radius: 20px;
+
+  background: color-mix(
+    in srgb,
+    var(--surface) 94%,
+    transparent
+  );
+
+  backdrop-filter: blur(14px);
+
+  z-index: 50;
+}
+
+.tab {
+  min-height: 49px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  border: 0;
+  border-radius: 14px;
+
+  background: transparent;
+  color: var(--muted);
+
+  font-size: 0.68rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.tab[aria-current='page'] {
+  background: var(--blush);
+  color: var(--rose-dark);
+}
+
+.tab-icon {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+
+/* =========================================================
+   SHEETS / DIALOGS
+   ========================================================= */
+
+dialog.sheet {
+  width: min(680px, calc(100% - 24px));
+
+  margin: auto;
+
+  padding: 0;
+
+  border: 1px solid var(--line);
+  border-radius: 24px;
+
+  background: var(--surface);
+  color: var(--ink);
+
+  box-shadow: 0 20px 60px rgba(50, 30, 55, 0.18);
+}
+
+dialog.sheet::backdrop {
+  background: rgba(38, 25, 43, 0.35);
+  backdrop-filter: blur(4px);
+}
+
+.sheet-inner {
+  padding: 22px;
+}
+
+.sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+
+  margin-bottom: 18px;
+}
+
+.sheet-title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+}
+
+.sheet-close {
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid var(--line);
+  border-radius: 50%;
+
+  background: var(--surface2);
+  color: var(--muted);
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   CARD ART
+   ========================================================= */
+
+.card-art {
+  position: relative;
+
+  width: 100%;
+  aspect-ratio: 2 / 3;
+
+  border-radius: 12px;
+
+  overflow: hidden;
+
+  background: var(--surface2);
+}
+
+.card-art img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.card-art.reversed img {
+  transform: rotate(180deg);
+}
+
+
+/* =========================================================
+   TOASTS
+   ========================================================= */
+
+.toast {
+  position: fixed;
+
+  left: 50%;
+  bottom: calc(82px + var(--safe-bottom));
+
+  transform: translateX(-50%);
+
+  width: min(calc(100% - 32px), 520px);
+
+  padding: 12px 15px;
+
+  border: 1px solid var(--line);
+  border-radius: 14px;
+
+  background: var(--surface);
+  color: var(--ink);
+
+  box-shadow: 0 12px 30px rgba(50, 30, 55, 0.12);
+
+  font-size: 0.86rem;
+
+  z-index: 100;
+}
+
+
+/* =========================================================
+   NATAL CHART
+   ========================================================= */
+
+.chart-shell {
+  display: grid;
+  gap: 14px;
+}
+
+.chart-card {
+  padding: 17px;
+
+  border: 1px solid var(--line);
+  border-radius: 19px;
+
+  background: var(--surface);
+}
+
+.chart-title {
+  margin-bottom: 8px;
+
+  font-family: var(--serif);
+  font-size: 1.25rem;
+}
+
+.chart-meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.chart-stat {
+  padding: 12px;
+
+  border-radius: 14px;
+
+  background: var(--surface2);
+}
+
+.chart-stat-label {
+  color: var(--muted);
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.chart-stat-value {
+  margin-top: 3px;
+
+  color: var(--brand);
+
+  font-family: var(--serif);
+  font-size: 1rem;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 520px) {
+  .shell {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .row2 {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cloth {
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .slot {
+    min-height: 110px;
+  }
+
+  .tabs {
+    width: calc(100% - 18px);
+  }
+}
+
+@media (min-width: 700px) {
+  .shell {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
 }
