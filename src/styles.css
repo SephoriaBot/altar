@@ -1,28 +1,28 @@
 :root {
-  --bg: #f6eef7;
-  --surface: #fffbfd;
-  --surface2: #f0e2f0;
-  --ink: #40364d;
-  --muted: #8d788d;
-  --line: #dfc9dd;
-  --brand: #6f5191;
+  --bg: #f8e7ef;
+  --surface: #fff9fc;
+  --surface2: #efd6e5;
+  --ink: #44304a;
+  --muted: #8c7184;
+  --line: #ddc0d2;
+  --brand: #76509b;
   --on-brand: #ffffff;
-  --moon: #e4c56f;
-  --blush: #e5a8be;
-  --blush-soft: #f3d8e2;
-  --rose: #c987a5;
-  --rose-dark: #98627d;
-  --lavender: #b6a0ce;
-  --lavender-soft: #ded2e9;
-  --cloth: #4a3152;
-  --cloth-ink: #faf3f8;
-  --cloth-line: #a77ca6;
+  --moon: #e3bd5d;
+  --blush: #e58eae;
+  --blush-soft: #f5d0de;
+  --rose: #c86b91;
+  --rose-dark: #914766;
+  --lavender: #b79ad3;
+  --lavender-soft: #dfd0eb;
+  --cloth: #4b315c;
+  --cloth-ink: #fff5fa;
+  --cloth-line: #a77fb3;
   --wands: #e9a58f;
   --cups: #a8c8e5;
   --swords: #92cdbd;
   --pents: #a8c99d;
   --major: #e5b8cf;
-  --pastel-ink: #40364d;
+  --pastel-ink: #44304a;
   --serif: 'Young Serif', 'Iowan Old Style', Georgia, serif;
   --sans: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Nunito', 'Segoe UI', system-ui, sans-serif;
   color-scheme: light;
@@ -33,47 +33,47 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #241b27;
-    --surface: #302238;
-    --surface2: #422d46;
-    --ink: #f8eff5;
-    --muted: #cdb6c8;
-    --line: #553d58;
-    --brand: #d5a1c0;
-    --on-brand: #302238;
-    --moon: #e7c875;
-    --blush: #9e607d;
-    --blush-soft: #5a374b;
-    --rose: #d59ab7;
-    --rose-dark: #e1b0c7;
-    --lavender: #a895c0;
-    --lavender-soft: #4a3953;
-    --cloth: #1c1420;
-    --cloth-ink: #f8eff5;
-    --cloth-line: #805a7d;
+    --bg: #261c2d;
+    --surface: #33243b;
+    --surface2: #46304b;
+    --ink: #fff1f7;
+    --muted: #d0b8c9;
+    --line: #5b4160;
+    --brand: #d0a3e3;
+    --on-brand: #302039;
+    --moon: #e5c76d;
+    --blush: #b96b8d;
+    --blush-soft: #62394d;
+    --rose: #df91b1;
+    --rose-dark: #efb5cb;
+    --lavender: #b69bd0;
+    --lavender-soft: #51405c;
+    --cloth: #1d1423;
+    --cloth-ink: #fff1f7;
+    --cloth-line: #88648f;
     color-scheme: dark;
   }
 }
 
 :root[data-theme='dark'] {
-  --bg: #241b27;
-  --surface: #302238;
-  --surface2: #422d46;
-  --ink: #f8eff5;
-  --muted: #cdb6c8;
-  --line: #553d58;
-  --brand: #d5a1c0;
-  --on-brand: #302238;
-  --moon: #e7c875;
-  --blush: #9e607d;
-  --blush-soft: #5a374b;
-  --rose: #d59ab7;
-  --rose-dark: #e1b0c7;
-  --lavender: #a895c0;
-  --lavender-soft: #4a3953;
-  --cloth: #1c1420;
-  --cloth-ink: #f8eff5;
-  --cloth-line: #805a7d;
+  --bg: #261c2d;
+  --surface: #33243b;
+  --surface2: #46304b;
+  --ink: #fff1f7;
+  --muted: #d0b8c9;
+  --line: #5b4160;
+  --brand: #d0a3e3;
+  --on-brand: #302039;
+  --moon: #e5c76d;
+  --blush: #b96b8d;
+  --blush-soft: #62394d;
+  --rose: #df91b1;
+  --rose-dark: #efb5cb;
+  --lavender: #b69bd0;
+  --lavender-soft: #51405c;
+  --cloth: #1d1423;
+  --cloth-ink: #fff1f7;
+  --cloth-line: #88648f;
   color-scheme: dark;
 }
 
@@ -644,7 +644,7 @@ details summary {
 
 .steps li::before {
   background: var(--moon);
-  color: #4a3a35;
+  color: #4a3540;
 }
 
 .plist li::before {
@@ -757,7 +757,7 @@ details summary {
   padding: 2px 10px;
   border-radius: 999px;
   background: var(--moon);
-  color: #4a3a35;
+  color: #4a3540;
   margin-left: 6px;
   vertical-align: middle;
 }
@@ -1102,7 +1102,7 @@ dialog.sheet::backdrop {
   border: 1px solid var(--line);
   border-radius: 16px;
   background: var(--surface);
-  box-shadow: 0 8px 24px rgba(58, 44, 55, 0.08);
+  box-shadow: 0 8px 24px rgba(68, 48, 74, 0.08);
 }
 
 .chart-location-results button {
