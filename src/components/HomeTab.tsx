@@ -214,44 +214,54 @@ export function HomeTab({
           </div>
         </article>
 
-        <article className="home-card home-card-pattern">
-          <div className="home-card-icon">◇</div>
+<article className="home-card home-card-pattern">
+  <div className="home-card-icon">◇</div>
 
-          <div>
-            <p className="home-card-label">Your patterns</p>
+  <div>
+    <p className="home-card-label">Your patterns</p>
 
-            <h2>What keeps appearing?</h2>
+    <h2>What keeps appearing?</h2>
 
-            {stats.recurringCards.length > 0 ? (
-              <>
-                <p>
-                  These are some of the cards appearing most often in
-                  your saved readings.
-                </p>
+    {stats.recurringCards.length > 0 ? (
+      <>
+        <p>
+          The cards that have appeared most often across your saved
+          readings.
+        </p>
 
-                <div className="home-card-list">
-                  {stats.recurringCards.map(([name, count]) => (
-                    <div className="home-list-row" key={name}>
-                      <span>{name}</span>
+        <div className="home-card-list">
+          {stats.recurringCards.map(([name, count], index) => (
+            <div className="home-list-row" key={name}>
+              <span>
+                <strong>{index + 1}</strong>
+                {' '}
+                {name}
+              </span>
 
-                      <span>
-                        {count}{' '}
-                        {count === 1
-                          ? 'appearance'
-                          : 'appearances'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p>
-                As you save readings, Altar will begin noticing
-                recurring cards and patterns in your history.
-              </p>
-            )}
-          </div>
-        </article>
+              <span>
+                {count} {count === 1 ? 'appearance' : 'appearances'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </>
+    ) : (
+      <>
+        <p>
+          As you save readings, Altar will begin noticing recurring
+          cards and patterns in your history.
+        </p>
+
+        <button
+          type="button"
+          onClick={() => onGoTo('read')}
+        >
+          Begin a reading
+        </button>
+      </>
+    )}
+  </div>
+</article>
 
         <article className="home-card home-card-journal">
           <div className="home-card-icon">♡</div>

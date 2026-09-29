@@ -1701,3 +1701,21 @@ dialog.sheet::backdrop {
     padding: 20px 18px 18px;
   }
 }
+
+.home-reading-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 16px;
+}
+
+.home-reading-card {
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--lavender-soft);
+  color: var(--brand);
+  font-family: var(--serif);
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
