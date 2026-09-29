@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@clerk/react';
 import type { SavedReading } from '../types';
 import { useTradition } from '../lib/tradition';
 
@@ -15,8 +16,46 @@ export function HomeTab({
 }: HomeTabProps) {
   const T = useTradition();
 
+  const { getToken, isSignedIn } = useAuth();
+
   const [chart, setChart] = useState<any | null>(null);
 
+    useEffect(() => {
+    if (!isSignedIn) {
+      setChart(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadSavedChart() {
+      try {
+        const token = await getToken();
+
+        const response = await fetch('/api/charts', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        if (!cancelled && data.charts?.length) {
+          setChart(data.charts[0].chart);
+        }
+      } catch {
+        // Keep the Home dashboard usable if the chart cannot be loaded.
+      }
+    }
+
+    void loadSavedChart();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getToken, isSignedIn]);
 
   const stats = useMemo(() => {
     const cardCounts = new Map<string, number>();
