@@ -1,30 +1,47 @@
 :root {
   --bg: #f8e7ef;
   --surface: #fff9fc;
-  --surface2: #efd6e5;
+  --surface2: #efe0f0;
+
   --ink: #44304a;
   --muted: #8c7184;
-  --line: #ddc0d2;
+  --line: #d9c7dc;
+
   --brand: #76509b;
   --on-brand: #ffffff;
-  --moon: #e3bd5d;
+
+  --moon: #f2d47a;
+
   --blush: #e58eae;
   --blush-soft: #f5d0de;
+
   --rose: #c86b91;
   --rose-dark: #914766;
+
   --lavender: #b79ad3;
   --lavender-soft: #dfd0eb;
+
+  --butter: #f4d982;
+  --butter-soft: #f8ebba;
+
+  --sky: #a9cce5;
+  --sky-soft: #d9eaf4;
+
   --cloth: #4b315c;
   --cloth-ink: #fff5fa;
   --cloth-line: #a77fb3;
+
   --wands: #e9a58f;
-  --cups: #a8c8e5;
-  --swords: #92cdbd;
-  --pents: #a8c99d;
+  --cups: #a9cde7;
+  --swords: #9bcfc2;
+  --pents: #b4cf9f;
   --major: #e5b8cf;
+
   --pastel-ink: #44304a;
+
   --serif: 'Young Serif', 'Iowan Old Style', Georgia, serif;
   --sans: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Nunito', 'Segoe UI', system-ui, sans-serif;
+
   color-scheme: light;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
@@ -39,18 +56,31 @@
     --ink: #fff1f7;
     --muted: #d0b8c9;
     --line: #5b4160;
+
     --brand: #d0a3e3;
     --on-brand: #302039;
-    --moon: #e5c76d;
+
+    --moon: #e8ca70;
+
     --blush: #b96b8d;
     --blush-soft: #62394d;
+
     --rose: #df91b1;
     --rose-dark: #efb5cb;
+
     --lavender: #b69bd0;
     --lavender-soft: #51405c;
+
+    --butter: #e8ca70;
+    --butter-soft: #5b4c32;
+
+    --sky: #9fc5df;
+    --sky-soft: #354957;
+
     --cloth: #1d1423;
     --cloth-ink: #fff1f7;
     --cloth-line: #88648f;
+
     color-scheme: dark;
   }
 }
@@ -62,18 +92,31 @@
   --ink: #fff1f7;
   --muted: #d0b8c9;
   --line: #5b4160;
+
   --brand: #d0a3e3;
   --on-brand: #302039;
-  --moon: #e5c76d;
+
+  --moon: #e8ca70;
+
   --blush: #b96b8d;
   --blush-soft: #62394d;
+
   --rose: #df91b1;
   --rose-dark: #efb5cb;
+
   --lavender: #b69bd0;
   --lavender-soft: #51405c;
+
+  --butter: #e8ca70;
+  --butter-soft: #5b4c32;
+
+  --sky: #9fc5df;
+  --sky-soft: #354957;
+
   --cloth: #1d1423;
   --cloth-ink: #fff1f7;
   --cloth-line: #88648f;
+
   color-scheme: dark;
 }
 
@@ -251,7 +294,7 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   display: inline-block;
   padding: 1px 10px;
   border-radius: 999px;
-  background: var(--surface2);
+  background: var(--lavender-soft);
   font-size: 13px;
   margin: 0 6px 6px 0;
 }
@@ -346,7 +389,7 @@ textarea.field {
 
 .note {
   border-left: 4px solid var(--moon);
-  background: var(--surface2);
+  background: var(--butter-soft);
   border-radius: 0 16px 16px 0;
   padding: 12px 16px;
   margin: 18px 0;
@@ -643,8 +686,8 @@ details summary {
 }
 
 .steps li::before {
-  background: var(--moon);
-  color: #4a3540;
+  background: var(--butter);
+  color: #5b4632;
 }
 
 .plist li::before {
@@ -691,7 +734,7 @@ details summary {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--surface2);
+  background: var(--sky-soft);
   font-weight: 700;
   font-size: 12px;
   margin-right: 6px;
@@ -756,8 +799,8 @@ details summary {
   font-weight: 700;
   padding: 2px 10px;
   border-radius: 999px;
-  background: var(--moon);
-  color: #4a3540;
+  background: var(--butter);
+  color: #5b4632;
   margin-left: 6px;
   vertical-align: middle;
 }
@@ -1054,7 +1097,7 @@ dialog.sheet::backdrop {
   width: 27px;
   height: 27px;
   border-radius: 50%;
-  background: var(--surface2);
+  background: var(--lavender-soft);
   color: var(--brand);
   font-family: var(--sans);
   font-size: 11px;
@@ -1083,7 +1126,7 @@ dialog.sheet::backdrop {
   margin-top: 8px;
   padding: 9px 12px;
   border-radius: 12px;
-  background: var(--surface2);
+  background: var(--sky-soft);
   color: var(--ink);
   font-size: 14px;
 }
@@ -1115,7 +1158,7 @@ dialog.sheet::backdrop {
 }
 
 .chart-location-results button:hover {
-  background: var(--surface2);
+  background: var(--sky-soft);
 }
 
 .chart-zodiac-toggle {
@@ -1176,7 +1219,7 @@ dialog.sheet::backdrop {
 }
 
 .chart-big-three-card.chart-sun {
-  background: color-mix(in srgb, var(--moon) 22%, var(--surface));
+  background: color-mix(in srgb, var(--butter) 34%, var(--surface));
 }
 
 .chart-big-three-card.chart-moon {
@@ -1184,7 +1227,7 @@ dialog.sheet::backdrop {
 }
 
 .chart-big-three-card.chart-rising {
-  background: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  background: color-mix(in srgb, var(--sky) 32%, var(--surface));
 }
 
 .chart-symbol {
@@ -1261,7 +1304,7 @@ dialog.sheet::backdrop {
   width: 38px;
   height: 38px;
   border-radius: 13px;
-  background: var(--surface2);
+  background: var(--sky-soft);
   font-family: var(--serif);
   font-size: 21px;
 }
@@ -1292,7 +1335,7 @@ dialog.sheet::backdrop {
 }
 
 .chart-retrograde {
-  color: var(--brand);
+  color: var(--rose);
   font-weight: 800;
 }
 
@@ -1308,7 +1351,7 @@ dialog.sheet::backdrop {
   gap: 2px;
   padding: 15px;
   border-radius: 17px;
-  background: var(--surface2);
+  background: var(--sky-soft);
 }
 
 .chart-angle-symbol {
@@ -1372,8 +1415,8 @@ dialog.sheet::backdrop {
   flex: 0 0 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--surface2);
-  color: var(--brand);
+  background: var(--butter-soft);
+  color: var(--rose-dark);
   font-size: 12px;
   font-weight: 800;
 }
