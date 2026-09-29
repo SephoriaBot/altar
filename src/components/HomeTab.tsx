@@ -104,24 +104,30 @@ export function HomeTab({
             <p className="home-card-label">Your chart</p>
 
             {chart ? (
-              <>
-                <h2>
-                  {chart.sunSign
-                    ? `${chart.sunSign} Sun`
-                    : 'Your celestial map'}
-                </h2>
+  <>
+    <h2>
+      {chart.placements?.find(
+        (placement: { body: string }) => placement.body === 'sun',
+      )?.sign ?? 'Your celestial map'}
+      {' '}Sun
+    </h2>
 
-                <p>
-                  {chart.moonSign && chart.ascendantSign
-                    ? `${chart.moonSign} Moon · ${chart.ascendantSign} Rising`
-                    : 'Your birth chart is saved in Altar.'}
-                </p>
+    <p>
+      {chart.placements?.find(
+        (placement: { body: string }) => placement.body === 'moon',
+      )?.sign ?? 'Moon'}
+      {' '}Moon
+      {' · '}
+      {chart.angles?.zodiacAscendant != null
+        ? 'Rising saved'
+        : 'Birth chart saved'}
+    </p>
 
-                <button type="button" onClick={() => onGoTo('chart')}>
-                  View your chart
-                </button>
-              </>
-            ) : (
+    <button type="button" onClick={() => onGoTo('chart')}>
+      View your chart
+    </button>
+  </>
+) : (
               <>
                 <h2>Your celestial map</h2>
 
@@ -190,7 +196,7 @@ export function HomeTab({
               <>
                 <p>
                   These are some of the cards appearing most often in
-                  your saved readings..
+                  your saved readings.
                 </p>
 
                 <div className="home-card-list">
