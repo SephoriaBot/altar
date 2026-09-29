@@ -164,17 +164,36 @@ export function HomeTab({
             {recentReading ? (
               <>
                 <h2>
-                  {recentReading.question || 'Untitled reading'}
-                </h2>
+  {recentReading.question || 'Untitled reading'}
+</h2>
 
-                <p>{recentReading.spreadName || 'Personal reading'}</p>
+<p>{recentReading.spreadName || 'Personal reading'}</p>
 
-                <button
-                  type="button"
-                  onClick={() => onOpenReading(recentReading)}
-                >
-                  Open reading
-                </button>
+<div className="home-reading-cards">
+  {recentReading.cards
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((slot, index) => {
+      if (!slot) return null;
+
+      const card = T.cards[slot.id];
+      if (!card) return null;
+
+      return (
+        <div className="home-reading-card" key={`${slot.id}-${index}`}>
+          <span>{card.name}</span>
+          {slot.reversed && <small>Reversed</small>}
+        </div>
+      );
+    })}
+</div>
+
+<button
+  type="button"
+  onClick={() => onOpenReading(recentReading)}
+>
+  Open reading
+</button>
               </>
             ) : (
               <>
