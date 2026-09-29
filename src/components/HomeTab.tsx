@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import type { SavedReading } from '../types';
 import { useTradition } from '../lib/tradition';
 
@@ -14,6 +15,51 @@ export function HomeTab({
   onGoTo,
 }: HomeTabProps) {
   const T = useTradition();
+  const { getToken } = useAuth();
+
+  const [chart, setChart] = useState<any | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadChart() {
+      const token = await getToken();
+
+      if (!token) {
+        setChart(null);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/charts', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          setChart(null);
+          return;
+        }
+
+        const data = await response.json();
+
+        if (!cancelled) {
+          setChart(data?.chart ?? data ?? null);
+        }
+      } catch {
+        if (!cancelled) {
+          setChart(null);
+        }
+      }
+    }
+
+    void loadChart();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getToken]);
 
   const stats = useMemo(() => {
     const cardCounts = new Map<string, number>();
@@ -55,22 +101,44 @@ export function HomeTab({
       </header>
 
       <div className="home-grid">
-        <article className="home-card home-card-chart">
+               <article className="home-card home-card-chart">
           <div className="home-card-icon">☾</div>
 
           <div>
             <p className="home-card-label">Your chart</p>
 
-            <h2>Your celestial map</h2>
+            {chart ? (
+              <>
+                <h2>
+                  {chart.sunSign
+                    ? `${chart.sunSign} Sun`
+                    : 'Your celestial map'}
+                </h2>
 
-            <p>
-              Explore your birth chart and the placements that make your
-              astrology personal to you.
-            </p>
+                <p>
+                  {chart.moonSign && chart.ascendantSign
+                    ? `${chart.moonSign} Moon · ${chart.ascendantSign} Rising`
+                    : 'Your birth chart is saved in Altar.'}
+                </p>
 
-            <button type="button" onClick={() => onGoTo('chart')}>
-              View your chart
-            </button>
+                <button type="button" onClick={() => onGoTo('chart')}>
+                  View your chart
+                </button>
+              </>
+            ) : (
+              <>
+                <h2>Your celestial map</h2>
+
+                <p>
+                  Save your birth chart to begin seeing your personal
+                  placements here.
+                </p>
+
+                <button type="button" onClick={() => onGoTo('chart')}>
+                  Open chart
+                </button>
+              </>
+            )}
           </div>
         </article>
 
