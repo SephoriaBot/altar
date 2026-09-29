@@ -190,7 +190,7 @@ export function HomeTab({
               <>
                 <p>
                   These are some of the cards appearing most often in
-                  your saved readings.
+                  your saved readings..
                 </p>
 
                 <div className="home-card-list">
