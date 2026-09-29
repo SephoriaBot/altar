@@ -16,7 +16,7 @@ import { TraditionProvider } from './lib/tradition';
 type Tab = 'home' | 'spreads' | 'read' | 'cards' | 'journal' | 'chart';
 
 const TABS: [Tab, string, keyof typeof Icons][] = [
-  ['home', 'Home', 'home'],
+  ['home', 'Home', 'journal'],
   ['spreads', 'Spreads', 'spreads'],
   ['read', 'Read', 'read'],
   ['cards', 'Cards', 'cards'],
