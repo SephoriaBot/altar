@@ -182,7 +182,7 @@ export function HomeTab({
       return (
         <div className="home-reading-card" key={`${slot.id}-${index}`}>
           <span>{card.name}</span>
-          {slot.reversed && <small>Reversed</small>}
+        
         </div>
       );
     })}
