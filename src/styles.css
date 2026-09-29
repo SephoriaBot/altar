@@ -1719,3 +1719,37 @@ dialog.sheet::backdrop {
   font-size: 0.82rem;
   line-height: 1.2;
 }
+
+.home-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.86rem;
+}
+
+.home-list-row:last-child {
+  border-bottom: 0;
+}
+
+.home-list-row strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--butter-soft);
+  color: var(--brand);
+  font-family: var(--serif);
+  font-size: 0.75rem;
+}
+
+.home-list-row > span:last-child {
+  color: var(--muted);
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
