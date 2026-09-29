@@ -17,47 +17,6 @@ export function HomeTab({
 
   const [chart, setChart] = useState<any | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadChart() {
-      const token = await getToken();
-
-      if (!token) {
-        setChart(null);
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/charts', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          setChart(null);
-          return;
-        }
-
-        const data = await response.json();
-
-        if (!cancelled) {
-          setChart(data?.chart ?? data ?? null);
-        }
-      } catch {
-        if (!cancelled) {
-          setChart(null);
-        }
-      }
-    }
-
-    void loadChart();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [getToken]);
 
   const stats = useMemo(() => {
     const cardCounts = new Map<string, number>();
