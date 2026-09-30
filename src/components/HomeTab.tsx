@@ -264,31 +264,48 @@ export function HomeTab({
 </article>
 
         <article className="home-card home-card-journal">
-          <div className="home-card-icon">♡</div>
+  <div className="home-card-icon">♡</div>
 
-          <div>
-            <p className="home-card-label">Your journal</p>
+  <div>
+    <p className="home-card-label">Your journal</p>
 
-            <h2>Your reflections</h2>
+    <h2>Your reflections</h2>
 
-            <p>
-              {stats.totalReadings === 0
-                ? 'Your saved readings and reflections will live here.'
-                : `You have ${stats.totalReadings} saved ${
-                    stats.totalReadings === 1
-                      ? 'reading'
-                      : 'readings'
-                  }.`}
-            </p>
+    {stats.totalReadings === 0 ? (
+      <p>
+        Your saved readings and reflections will live here.
+      </p>
+    ) : (
+      <>
+        <p>
+          You have {stats.totalReadings}{' '}
+          {stats.totalReadings === 1 ? 'saved reading' : 'saved readings'}.
+        </p>
 
-            <button
-              type="button"
-              onClick={() => onGoTo('journal')}
-            >
-              Open journal
-            </button>
-          </div>
-        </article>
+        {recentReading?.createdAt && (
+          <p className="home-journal-date">
+            Last reading ·{' '}
+            {new Date(recentReading.createdAt).toLocaleDateString(
+              undefined,
+              {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+              },
+            )}
+          </p>
+        )}
+      </>
+    )}
+
+    <button
+      type="button"
+      onClick={() => onGoTo('journal')}
+    >
+      Open journal
+    </button>
+  </div>
+</article>
       </div>
     </section>
   );
