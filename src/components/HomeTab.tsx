@@ -306,6 +306,19 @@ export function HomeTab({
     </button>
   </div>
 </article>
+           </div>
+
+      <div className="home-reflection">
+        <span className="home-reflection-symbol">☾</span>
+
+        <div>
+          <p className="home-card-label">A moment for reflection</p>
+
+          <p className="home-reflection-text">
+            What are you noticing lately that you might have
+            overlooked before?
+          </p>
+        </div>
       </div>
     </section>
   );
