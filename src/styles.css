@@ -1753,3 +1753,16 @@ dialog.sheet::backdrop {
   font-size: 0.76rem;
   white-space: nowrap;
 }
+/* Random draw: cards flip in one after another. Animating the children keeps the
+   slot's own rotate/reversed transform untouched. */
+@keyframes deal-in {
+  from { opacity: 0; transform: rotateY(90deg) scale(0.85); }
+  to { opacity: 1; transform: rotateY(0) scale(1); }
+}
+.slot.dealt > * {
+  animation: deal-in 0.5s ease-out both;
+  animation-delay: var(--d, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .slot.dealt > * { animation: none; }
+}
