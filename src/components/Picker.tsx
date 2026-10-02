@@ -12,19 +12,20 @@ interface Props {
   slots: (Slot | null)[];
   reversals: boolean;
   onPick: (card: Card, reversed: boolean) => void;
+  onRandom: () => void;
   onRemove: () => void;
   onClose: () => void;
 }
 
-export function Picker({ spread, index, slots, reversals, onPick, onRemove, onClose }: Props) {
+export function Picker({ spread, index, slots, reversals, onPick, onRandom, onRemove, onClose }: Props) {
   return (
     <Sheet open={index !== null} onClose={onClose}>
-      {index !== null && <PickerBody key={index} {...{ spread, index, slots, reversals, onPick, onRemove, onClose }} />}
+      {index !== null && <PickerBody key={index} {...{ spread, index, slots, reversals, onPick, onRandom, onRemove, onClose }} />}
     </Sheet>
   );
 }
 
-function PickerBody({ spread, index, slots, reversals, onPick, onRemove, onClose }: Omit<Props, 'index'> & { index: number }) {
+function PickerBody({ spread, index, slots, reversals, onPick, onRandom, onRemove, onClose }: Omit<Props, 'index'> & { index: number }) {
   const T = useTradition();
   const cur = slots[index];
   const [q, setQ] = useState('');
@@ -72,6 +73,10 @@ function PickerBody({ spread, index, slots, reversals, onPick, onRemove, onClose
           </button>
         </div>
       )}
+
+      <button type="button" className="btn sm" onClick={onRandom}>
+        Draw a random card
+      </button>
 
       <input
         ref={inputRef}
