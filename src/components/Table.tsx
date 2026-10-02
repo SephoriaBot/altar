@@ -9,11 +9,13 @@ interface Props {
   slots?: (Slot | null)[];
   reversals?: boolean;
   interactive?: boolean;
+  /** Slot indices that were just dealt, to play the flip-in animation. */
+  dealt?: number[];
   mini?: boolean;
   onSlot?: (i: number) => void;
 }
 
-export function Table({ spread, slots, reversals = true, interactive = false, mini = false, onSlot }: Props) {
+export function Table({ spread, slots, reversals = true, interactive = false, dealt = [], mini = false, onSlot }: Props) {
   const T = useTradition();
   const style = { '--cols': spread.maxX + 1, '--maxx': spread.maxX, '--maxy': spread.maxY } as CSSProperties;
   return (
@@ -22,9 +24,9 @@ export function Table({ spread, slots, reversals = true, interactive = false, mi
         const s = slots?.[i] ?? null;
         const c = s ? T.cards[s.id] : null;
         const rev = !!(c && reversals && s?.rev);
-        const st = { '--x': p.x, '--y': p.y, '--rot': `${p.rot}deg`, '--rev': `${rev ? 180 : 0}deg`, zIndex: p.rot ? 2 : 1 } as CSSProperties;
+        const st = { '--x': p.x, '--y': p.y, '--rot': `${p.rot}deg`, '--rev': `${rev ? 180 : 0}deg`, '--d': `${Math.max(0, dealt.indexOf(i)) * 140}ms`, zIndex: p.rot ? 2 : 1 } as CSSProperties;
         const art = c ? cardArt(c) : null;
-        const cls = 'slot' + (c ? ` on s-${c.arc}` : ' empty') + (p.ntop ? ' ntop' : '') + (art ? ' has-art' : '');
+        const cls = 'slot' + (c ? ` on s-${c.arc}` : ' empty') + (p.ntop ? ' ntop' : '') + (art ? ' has-art' : '') + (dealt.includes(i) ? ' dealt' : '');
         const inner = c ? (
           art ? (
             <>
