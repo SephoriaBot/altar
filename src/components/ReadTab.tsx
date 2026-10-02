@@ -5,6 +5,7 @@ import { FOCUS, TH } from '../data/lore';
 import { SPREADS, getSpread } from '../data/spreads';
 import { analyze, focusLens, kwsOf, meaning, nm, normSlots, readingText, toEntries, type Analysis } from '../lib/engine';
 import { cardArt } from '../lib/art';
+import { drawCards } from '../lib/draw';
 import { cardFacts } from '../lib/facts';
 import { saveReadingRemote } from '../lib/storage';
 import { useTradition } from '../lib/tradition';
@@ -28,6 +29,8 @@ const { getToken, isSignedIn } = useAuth();
   const slots = useMemo(() => normSlots(read.cards[sp.id], sp.n), [read.cards, sp]);
   const entries = useMemo(() => toEntries(sp, slots, reversals, T), [sp, slots, reversals, T]);
   const [pick, setPick] = useState<number | null>(null);
+  const [dealt, setDealt] = useState<number[]>([]);
+  const dealTimer = useRef<number | undefined>(undefined);
   const [armed, setArmed] = useState(false);
   const armTimer = useRef<number | undefined>(undefined);
   const [copyText, setCopyText] = useState<string | null>(null);
@@ -47,6 +50,38 @@ const { getToken, isSignedIn } = useAuth();
     let nxt: number | null = null;
     if (wasEmpty) for (let j = pick + 1; j < sp.n; j++) if (!next[j]) { nxt = j; break; }
     setPick(nxt);
+  };
+
+  // Random draw from the electronic deck. Fills every empty position with a card
+  // that isn't already on the table; when the spread is full it redraws everything.
+  const draw = () => {
+    const full = slots.every(Boolean);
+    const base: (Slot | null)[] = full ? Array(sp.n).fill(null) : slots.slice();
+    const open = base.flatMap((s, i) => (s ? [] : [i]));
+    const used = new Set(base.flatMap((s) => (s ? [s.id] : [])));
+    const picked = drawCards(T.cards, open.length, used, reversals);
+    open.forEach((slotIdx, k) => {
+      base[slotIdx] = picked[k];
+    });
+    setSlots(base);
+    setPick(null);
+    setDealt(open);
+    window.clearTimeout(dealTimer.current);
+    dealTimer.current = window.setTimeout(() => setDealt([]), 1600);
+  };
+
+  const drawOne = () => {
+    if (pick === null) return;
+    const used = new Set(slots.flatMap((s, j) => (s && j !== pick ? [s.id] : [])));
+    const [one] = drawCards(T.cards, 1, used, reversals);
+    if (!one) return;
+    const next = slots.slice();
+    next[pick] = one;
+    setSlots(next);
+    setDealt([pick]);
+    window.clearTimeout(dealTimer.current);
+    dealTimer.current = window.setTimeout(() => setDealt([]), 1600);
+    setPick(null);
   };
 
   const removeAt = () => {
@@ -167,7 +202,7 @@ const { getToken, isSignedIn } = useAuth();
       </div>
 
       <div className="cloth">
-        <Table spread={sp} slots={slots} reversals={reversals} interactive onSlot={setPick} />
+        <Table spread={sp} slots={slots} reversals={reversals} interactive dealt={dealt} onSlot={setPick} />
       </div>
 
       <div className="tools">
@@ -175,6 +210,9 @@ const { getToken, isSignedIn } = useAuth();
           {filled} of {sp.n} entered
         </span>
         <span className="btns">
+          <button type="button" className="btn sm" onClick={draw}>
+            {filled === sp.n ? 'Redraw all' : filled ? 'Draw remaining' : 'Draw cards'}
+          </button>
           <button type="button" className="btn ghost sm" disabled={!filled} onClick={copy}>
             Copy reading
           </button>
@@ -225,7 +263,7 @@ const { getToken, isSignedIn } = useAuth();
         </>
       )}
 
-      <Picker spread={sp} index={pick} slots={slots} reversals={reversals} onPick={choose} onRemove={removeAt} onClose={() => setPick(null)} />
+      <Picker spread={sp} index={pick} slots={slots} reversals={reversals} onPick={choose} onRandom={drawOne} onRemove={removeAt} onClose={() => setPick(null)} />
 
       <Sheet open={copyText !== null} onClose={() => setCopyText(null)}>
         <div className="sh">
