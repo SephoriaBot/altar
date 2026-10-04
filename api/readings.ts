@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient, type Client } from '@libsql/client';
-import { verifyToken } from '@clerk/backend';
+import { getUserId } from './_lib/auth.js';
 import { randomUUID } from 'node:crypto';
 
 let client: Client | null = null;
@@ -39,27 +39,7 @@ async function ensureTable(db: Client) {
   await ready;
 }
 
-async function getUserId(req: VercelRequest): Promise<string | null> {
-  const authorization = req.headers.authorization;
-
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    return null;
-  }
-
-  const token = authorization.slice('Bearer '.length).trim();
-
-  if (!token) return null;
-
-  try {
-    const verified = await verifyToken(token, {
-      secretKey: process.env.CLERK_SECRET_KEY,
-    });
-
-    return verified.sub || null;
-  } catch {
-    return null;
-  }
-}
+const MAX_READINGS = 500;
 
 const clip = (v: unknown, max: number) =>
   typeof v === 'string' ? v.slice(0, max) : '';
@@ -102,9 +82,8 @@ export default async function handler(
   res.setHeader('Cache-Control', 'no-store');
 
   if (!process.env.CLERK_SECRET_KEY) {
-    return res.status(500).json({
-      error: 'CLERK_SECRET_KEY is not set on the server.',
-    });
+    console.error('CLERK_SECRET_KEY is not set');
+    return res.status(500).json({ error: 'Server is not configured correctly.' });
   }
 
   const userId = await getUserId(req);
@@ -138,15 +117,23 @@ export default async function handler(
         args: [userId],
       });
 
-      const readings = r.rows.map((row) => ({
-        id: String(row.id),
-        createdAt: Number(row.created_at),
-        spreadId: String(row.spread_id),
-        spreadName: String(row.spread_name),
-        question: String(row.question),
-        notes: String(row.notes),
-        cards: JSON.parse(String(row.cards)),
-      }));
+      const readings = r.rows.map((row) => {
+        let cards: unknown = [];
+        try {
+          cards = JSON.parse(String(row.cards));
+        } catch {
+          /* a damaged row shouldn't break the whole journal */
+        }
+        return {
+          id: String(row.id),
+          createdAt: Number(row.created_at),
+          spreadId: String(row.spread_id),
+          spreadName: String(row.spread_name),
+          question: String(row.question),
+          notes: String(row.notes),
+          cards,
+        };
+      });
 
       return res.status(200).json({ readings });
     }
@@ -161,6 +148,17 @@ export default async function handler(
       if (!cards || !spreadId || !spreadName) {
         return res.status(400).json({
           error: 'A spread and at least one card are required.',
+        });
+      }
+
+      // Cap how many readings one account can store.
+      const count = await db.execute({
+        sql: 'SELECT COUNT(*) AS n FROM readings WHERE user_id = ?',
+        args: [userId],
+      });
+      if (Number((count.rows[0] as any).n) >= MAX_READINGS) {
+        return res.status(429).json({
+          error: `Your journal is full (${MAX_READINGS} readings). Delete some to add more.`,
         });
       }
 
@@ -199,7 +197,7 @@ export default async function handler(
     if (req.method === 'DELETE') {
       const id = typeof req.query.id === 'string' ? req.query.id : '';
 
-      if (!id) {
+      if (!id || id.length > 64) {
         return res.status(400).json({
           error: 'Missing id.',
         });

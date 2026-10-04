@@ -2,7 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { randomUUID } from 'crypto';
 import { createClient } from '@libsql/client';
 import { createRequire } from 'module';
-import { verifyToken } from '@clerk/backend';
+import { getUserId } from './_lib/auth.js';
+import { validateChartBody } from './_lib/validate.js';
 
 const require = createRequire(import.meta.url);
 const Astronomy = require('astronomy-engine');
@@ -10,6 +11,8 @@ const Astronomy = require('astronomy-engine');
 /* ================================================================
    TYPES
    ================================================================ */
+
+const MAX_CHARTS_PER_USER = 25;
 
 type HouseSystem = 'whole-sign' | 'equal';
 
@@ -1005,39 +1008,6 @@ function getDbClient() {
   });
 }
 
-async function getUserId(
-  req: VercelRequest,
-): Promise<string | null> {
-  const authorization =
-    req.headers.authorization;
-
-  if (
-    !authorization ||
-    !authorization.startsWith('Bearer ')
-  ) {
-    return null;
-  }
-
-  const token =
-    authorization
-      .slice('Bearer '.length)
-      .trim();
-
-  if (!token) return null;
-
-  try {
-    const verified =
-      await verifyToken(token, {
-        secretKey:
-          process.env.CLERK_SECRET_KEY,
-      });
-
-    return verified.sub || null;
-  } catch {
-    return null;
-  }
-}
-
 /* ================================================================
    API HANDLER
    ================================================================ */
@@ -1081,10 +1051,7 @@ export default async function handler(
     );
 
     return res.status(500).json({
-      error:
-        error instanceof Error
-          ? error.message
-          : String(error),
+      error: 'Something went wrong. Please try again.',
     });
   }
 }
@@ -1118,6 +1085,11 @@ async function handleCreate(
       error:
         'birthDate, birthLat, and birthLng are required.',
     });
+  }
+
+  const invalid = validateChartBody(body);
+  if (invalid) {
+    return res.status(400).json({ error: invalid });
   }
 
   const birthTimeKnown =
@@ -1200,98 +1172,60 @@ async function handleCreate(
   const db =
     getDbClient();
 
-  await db.execute({
-    sql: `INSERT INTO natal_charts
-      (
-        id,
-user_id,
-chart_data,
-        label,
-        birth_date,
-        birth_time,
-        birth_time_known,
-        birth_lat,
-        birth_lng,
-        birth_location_label,
-        house_system,
-        ascendant,
-        midheaven,
-        ramc
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    args: [
-      chartId,
-userId,
-JSON.stringify(chart),
-body.label ?? null,
-
-      body.birthDate,
-
-      body.birthTime ??
-        null,
-
-      birthTimeKnown
-        ? 1
-        : 0,
-
-      body.birthLat,
-
-      body.birthLng,
-
-      body.birthLocationLabel ??
-        null,
-
-      houseSystem,
-
-      chart.angles
-        ?.ascendant ??
-        null,
-
-      chart.angles
-        ?.midheaven ??
-        null,
-
-      chart.angles
-        ?.ramc ??
-        null,
-    ],
+  // Cap how many charts one account can store.
+  const existing = await db.execute({
+    sql: 'SELECT COUNT(*) AS n FROM natal_charts WHERE user_id = ?',
+    args: [userId],
   });
-
-  for (
-    const placement of
-    chart.placements
-  ) {
-    await db.execute({
-      sql: `INSERT INTO chart_placements
-        (
-          chart_id,
-          body,
-          sign,
-          degree,
-          longitude,
-          house,
-          retrograde
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        chartId,
-
-        placement.body,
-
-        placement.sign,
-
-        placement.degree,
-
-        placement.longitude,
-
-        placement.house,
-
-        placement.retrograde
-          ? 1
-          : 0,
-      ],
+  if (Number((existing.rows[0] as any).n) >= MAX_CHARTS_PER_USER) {
+    return res.status(429).json({
+      error: `You've reached the limit of ${MAX_CHARTS_PER_USER} saved charts.`,
     });
   }
+
+  // One atomic batch: the chart and all its placements are saved together or not at all.
+  await db.batch(
+    [
+      {
+        sql: `INSERT INTO natal_charts
+          (id, user_id, chart_data, label, birth_date, birth_time, birth_time_known,
+           birth_lat, birth_lng, birth_location_label, house_system,
+           ascendant, midheaven, ramc)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          chartId,
+          userId,
+          JSON.stringify(chart),
+          body.label ?? null,
+          body.birthDate,
+          body.birthTime ?? null,
+          birthTimeKnown ? 1 : 0,
+          body.birthLat,
+          body.birthLng,
+          body.birthLocationLabel ?? null,
+          houseSystem,
+          chart.angles?.ascendant ?? null,
+          chart.angles?.midheaven ?? null,
+          chart.angles?.ramc ?? null,
+        ],
+      },
+      ...chart.placements.map((placement) => ({
+        sql: `INSERT INTO chart_placements
+          (chart_id, body, sign, degree, longitude, house, retrograde)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          chartId,
+          placement.body,
+          placement.sign,
+          placement.degree,
+          placement.longitude,
+          placement.house,
+          placement.retrograde ? 1 : 0,
+        ],
+      })),
+    ],
+    'write',
+  );
 
   return res.status(201).json({
     id: chartId,
