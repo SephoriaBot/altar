@@ -203,10 +203,18 @@ const { getToken, isSignedIn } = useAuth();
     setError(null);
 
     try {
+      const token = await getToken();
       const res = await fetch(
         `/api/geocode?q=${encodeURIComponent(locationQuery)}`,
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
+      if (res.status === 401) {
+        throw new Error('Please sign in to search locations.');
+      }
+      if (res.status === 429) {
+        throw new Error('Too many searches. Please wait a minute.');
+      }
       if (!res.ok) {
         throw new Error('Location search failed.');
       }
