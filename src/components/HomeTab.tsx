@@ -148,10 +148,8 @@ export function HomeTab({
               <h2>{drawnCard?.name ?? 'Your card'}</h2>
 
               <p>
-                {dailyDraw.rev
-                  ? 'Reversed'
-                  : 'Upright'}
-              </p>
+  {dailyDraw?.rev ? 'Reversed' : 'Upright'}
+</p>
 
               <button
                 type="button"
