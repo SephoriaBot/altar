@@ -3,7 +3,7 @@ import { useAuth } from '@clerk/react';
 import type { SavedReading, Slot } from '../types';
 import { useTradition } from '../lib/tradition';
 import { drawCards } from '../lib/draw';
-import { cardArt } from '../lib/cardArt';
+import { cardArt } from '../lib/art';
 
 interface HomeTabProps {
   readings: SavedReading[];
