@@ -1766,3 +1766,203 @@ dialog.sheet::backdrop {
 @media (prefers-reduced-motion: reduce) {
   .slot.dealt > * { animation: none; }
 }
+
+/* ---------- daily draw ---------- */
+
+.home-card-daily-draw {
+  grid-column: 1 / -1;
+  padding: 28px 24px 30px;
+  background:
+    radial-gradient(
+      circle at 50% 8%,
+      color-mix(in srgb, var(--blush-soft) 70%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      var(--surface) 0%,
+      var(--lavender-soft) 100%
+    );
+  text-align: center;
+}
+
+.home-card-daily-draw::before {
+  width: 180px;
+  height: 180px;
+  right: -70px;
+  top: -80px;
+  background: var(--blush);
+  opacity: 0.22;
+}
+
+.home-card-daily-draw .home-card-icon {
+  margin: 0 auto 12px;
+}
+
+.home-daily-draw-content {
+  position: relative;
+  z-index: 1;
+}
+
+.home-daily-draw-content > .home-card-label {
+  margin-bottom: 8px;
+}
+
+.home-daily-draw-content > h2 {
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 27px;
+}
+
+.home-daily-draw-content > p {
+  max-width: 480px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.home-card-daily-draw > .home-daily-draw-content > button {
+  min-height: 44px;
+  padding: 0 22px;
+  background: var(--brand);
+  color: var(--on-brand);
+  border-color: var(--brand);
+  font-size: 14px;
+}
+
+.home-card-daily-draw > .home-daily-draw-content > button:hover {
+  background: var(--rose-dark);
+  border-color: var(--rose-dark);
+}
+
+/* revealed card */
+
+.home-daily-draw-reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-daily-draw-result-label {
+  margin: 0 0 14px !important;
+  color: var(--rose-dark) !important;
+  font-size: 13px !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-tarot-card {
+  width: min(250px, 72vw);
+  margin: 0 auto 20px;
+  perspective: 1000px;
+}
+
+.home-tarot-card-inner {
+  position: relative;
+  width: 100%;
+  border-radius: 17px;
+  overflow: hidden;
+  background: var(--cloth);
+  box-shadow:
+    0 16px 35px rgba(68, 48, 74, 0.18),
+    0 4px 10px rgba(68, 48, 74, 0.1);
+}
+
+.home-tarot-card-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}
+
+.home-tarot-card-number,
+.home-tarot-card-symbol,
+.home-tarot-card-inner h2,
+.home-tarot-card-orientation {
+  position: relative;
+  z-index: 1;
+}
+
+.home-tarot-card-number {
+  display: block;
+  padding-top: 18px;
+  color: var(--cloth-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.home-tarot-card-symbol {
+  margin: 38px 0 12px;
+  color: var(--moon);
+  font-family: var(--serif);
+  font-size: 42px;
+}
+
+.home-tarot-card-inner h2 {
+  margin: 0 14px 10px;
+  color: var(--cloth-ink);
+  font-size: 21px;
+}
+
+.home-tarot-card-orientation {
+  display: inline-block;
+  margin-bottom: 18px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--blush-soft);
+  color: var(--rose-dark);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.home-daily-draw-meaning {
+  width: min(500px, 100%);
+  margin: 0 auto 20px;
+  padding: 17px 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  text-align: left;
+}
+
+.home-daily-draw-meaning-label {
+  margin: 0 0 6px !important;
+  color: var(--brand) !important;
+  font-size: 11px !important;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-daily-draw-meaning > p:last-child {
+  margin: 0 !important;
+  color: var(--ink) !important;
+  font-size: 14px !important;
+  line-height: 1.65;
+}
+
+.home-daily-draw-reveal > button {
+  min-height: 40px;
+}
+
+@media (max-width: 560px) {
+  .home-card-daily-draw {
+    padding: 24px 18px 26px;
+  }
+
+  .home-daily-draw-content > h2 {
+    font-size: 24px;
+  }
+
+  .home-tarot-card {
+    width: min(220px, 68vw);
+  }
+
+  .home-daily-draw-meaning {
+    padding: 15px 16px;
+  }
+}
