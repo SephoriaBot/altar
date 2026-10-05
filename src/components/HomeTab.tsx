@@ -145,7 +145,7 @@ export function HomeTab({
                 Your card for today
               </p>
 
-              <h2>{drawnCard.name}</h2>
+              <h2>{drawnCard?.name ?? 'Your card'}</h2>
 
               <p>
                 {dailyDraw.rev
