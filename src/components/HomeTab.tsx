@@ -3,6 +3,7 @@ import { useAuth } from '@clerk/react';
 import type { SavedReading, Slot } from '../types';
 import { useTradition } from '../lib/tradition';
 import { drawCards } from '../lib/draw';
+import { cardArt } from '../lib/cardArt';
 
 interface HomeTabProps {
   readings: SavedReading[];
@@ -118,49 +119,83 @@ export function HomeTab({
       </header>
 
       <article className="home-card home-card-daily-draw">
-        <div className="home-card-icon">✦</div>
+  <div className="home-card-icon">✦</div>
 
-        <div>
-          <p className="home-card-label">Daily Draw</p>
+  <div className="home-daily-draw-content">
+    <p className="home-card-label">Daily Draw</p>
 
-          {!drawnCard ? (
-            <>
-              <h2>What wants your attention today?</h2>
+    {!drawnCard ? (
+      <>
+        <h2>What wants your attention today?</h2>
 
-              <p>
-                Draw a card for a moment of reflection, guidance, or
-                curiosity.
-              </p>
+        <p>
+          Draw a card for a moment of reflection, guidance, or
+          curiosity.
+        </p>
 
-              <button
-                type="button"
-                onClick={handleDailyDraw}
-              >
-                Draw a card
-              </button>
-            </>
-          ) : (
-            <>
-              <p className="home-daily-draw-result-label">
-                Your card for today
-              </p>
+        <button
+          type="button"
+          onClick={handleDailyDraw}
+        >
+          Draw your card
+        </button>
+      </>
+    ) : (
+      <div className="home-daily-draw-reveal">
+        <p className="home-daily-draw-result-label">
+          Your card for today
+        </p>
 
-              <h2>{drawnCard?.name ?? 'Your card'}</h2>
+        <div className="home-tarot-card">
+  <div className="home-tarot-card-inner">
+    {cardArt(drawnCard) ? (
+      <img
+        src={cardArt(drawnCard) ?? ''}
+        alt={drawnCard.name}
+        className="home-tarot-card-image"
+      />
+    ) : (
+      <>
+        <span className="home-tarot-card-number">
+          {drawnCard.id < 22
+            ? drawnCard.id
+            : drawnCard.num ?? ''}
+        </span>
 
-              <p>
-  {dailyDraw?.rev ? 'Reversed' : 'Upright'}
-</p>
-
-              <button
-                type="button"
-                onClick={handleDailyDraw}
-              >
-                Draw again
-              </button>
-            </>
-          )}
+        <div className="home-tarot-card-symbol">
+          ✦
         </div>
-      </article>
+
+        <h2>{drawnCard.name}</h2>
+
+        <span className="home-tarot-card-orientation">
+          {dailyDraw?.rev ? 'Reversed' : 'Upright'}
+        </span>
+      </>
+    )}
+  </div>
+</div>
+
+        <div className="home-daily-draw-meaning">
+          <p className="home-daily-draw-meaning-label">
+            {dailyDraw?.rev ? 'Reversed' : 'Upright meaning'}
+          </p>
+
+          <p>
+            {dailyDraw?.rev ? drawnCard.rev : drawnCard.up}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleDailyDraw}
+        >
+          Draw again
+        </button>
+      </div>
+    )}
+  </div>
+</article>
 
       <div className="home-grid">
         <article className="home-card home-card-chart">
