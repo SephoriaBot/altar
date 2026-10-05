@@ -1853,7 +1853,7 @@ dialog.sheet::backdrop {
 }
 
 .home-tarot-card {
-  width: min(250px, 72vw);
+  width: min(210px, 62vw);
   margin: 0 auto 20px;
   perspective: 1000px;
 }
@@ -1873,8 +1873,7 @@ dialog.sheet::backdrop {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 2 / 3;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .home-tarot-card-number,
