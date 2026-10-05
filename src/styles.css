@@ -1,43 +1,43 @@
 :root {
-  --bg: #f8e7ef;
-  --surface: #fff9fc;
-  --surface2: #efe0f0;
+  --bg: #f7f1f3;
+  --surface: #fdfafb;
+  --surface2: #f1e8ec;
 
-  --ink: #44304a;
-  --muted: #8c7184;
-  --line: #d9c7dc;
+  --ink: #3f3039;
+  --muted: #88757e;
+  --line: #ded1d7;
 
-  --brand: #76509b;
+  --brand: #9b647f;
   --on-brand: #ffffff;
 
-  --moon: #f2d47a;
+  --moon: #c9a45d;
 
-  --blush: #e58eae;
-  --blush-soft: #f5d0de;
+  --blush: #d9a1b5;
+  --blush-soft: #f0dfe5;
 
-  --rose: #c86b91;
-  --rose-dark: #914766;
+  --rose: #b87994;
+  --rose-dark: #89506a;
 
-  --lavender: #b79ad3;
-  --lavender-soft: #dfd0eb;
+  --lavender: #b5a5b6;
+  --lavender-soft: #e9e1e8;
 
-  --butter: #f4d982;
-  --butter-soft: #f8ebba;
+  --butter: #d8bd78;
+  --butter-soft: #f0e7d0;
 
-  --sky: #a9cce5;
-  --sky-soft: #d9eaf4;
+  --sky: #b7c3c5;
+  --sky-soft: #e4ebeb;
 
-  --cloth: #4b315c;
-  --cloth-ink: #fff5fa;
-  --cloth-line: #a77fb3;
+  --cloth: #493541;
+  --cloth-ink: #fff8fb;
+  --cloth-line: #876b7b;
 
-  --wands: #e9a58f;
-  --cups: #a9cde7;
-  --swords: #9bcfc2;
-  --pents: #b4cf9f;
-  --major: #e5b8cf;
+  --wands: #d7a493;
+  --cups: #b7c6d0;
+  --swords: #aebfba;
+  --pents: #b7c1a5;
+  --major: #d4b1c1;
 
-  --pastel-ink: #44304a;
+  --pastel-ink: #44343d;
 
   --serif: 'Young Serif', 'Iowan Old Style', Georgia, serif;
   --sans: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Nunito', 'Segoe UI', system-ui, sans-serif;
@@ -1549,52 +1549,19 @@ dialog.sheet::backdrop {
   pointer-events: none;
 }
 
-.home-card-chart {
-  background: linear-gradient(
-    145deg,
-    var(--surface) 0%,
-    var(--lavender-soft) 100%
-  );
-}
-
-.home-card-chart::before {
-  background: var(--lavender);
-}
-
-.home-card-reading {
-  background: linear-gradient(
-    145deg,
-    var(--surface) 0%,
-    var(--blush-soft) 100%
-  );
-}
-
-.home-card-reading::before {
-  background: var(--blush);
-}
-
-.home-card-pattern {
-  background: linear-gradient(
-    145deg,
-    var(--surface) 0%,
-    var(--butter-soft) 100%
-  );
-}
-
-.home-card-pattern::before {
-  background: var(--butter);
-}
-
+.home-card-chart,
+.home-card-reading,
+.home-card-pattern,
 .home-card-journal {
-  background: linear-gradient(
-    145deg,
-    var(--surface) 0%,
-    var(--sky-soft) 100%
-  );
+  background: var(--surface);
 }
 
+.home-card-chart::before,
+.home-card-reading::before,
+.home-card-pattern::before,
 .home-card-journal::before {
-  background: var(--sky);
+  background: var(--blush);
+  opacity: 0.16;
 }
 
 .home-card-icon {
