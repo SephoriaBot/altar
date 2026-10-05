@@ -1965,3 +1965,7 @@ dialog.sheet::backdrop {
     padding: 15px 16px;
   }
 }
+
+.home-card-daily-draw {
+  margin-bottom: 14px;
+}
