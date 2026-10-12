@@ -1751,9 +1751,6 @@ dialog.sheet::backdrop {
 
 .home-card-daily-draw .home-card-icon {
   margin: 0 auto 12px;
-  background: var(--surface2);
-  border-color: var(--line);
-  color: var(--rose);
 }
 
 .home-daily-draw-content {
