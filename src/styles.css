@@ -1568,17 +1568,11 @@ dialog.sheet::backdrop {
 .home-card-icon {
   position: relative;
   z-index: 1;
-  width: 38px;
-  height: 38px;
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
   margin-bottom: 16px;
-  border-radius: 50%;
-  background: var(--surface2);
-  border: 1px solid var(--line);
-  color: var(--rose-dark);
-  font-family: var(--serif);
-  font-size: 20px;
 }
 
 .home-card > div:last-child {
