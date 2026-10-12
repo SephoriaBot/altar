@@ -119,7 +119,9 @@ export function HomeTab({
       </header>
 
       <article className="home-card home-card-daily-draw">
-  <div className="home-card-icon">✦</div>
+<div className="home-card-icon">
+  <img src="/dailydraw.png" alt="Daily Draw" />
+</div>
 
   <div className="home-daily-draw-content">
     <p className="home-card-label">Daily Draw</p>
@@ -199,7 +201,9 @@ export function HomeTab({
 
       <div className="home-grid">
         <article className="home-card home-card-chart">
-          <div className="home-card-icon">☾</div>
+          <div className="home-card-icon">
+  <img src="/chart.png" alt="Your Chart" />
+</div>
 
           <div>
             <p className="home-card-label">Your chart</p>
@@ -301,7 +305,9 @@ export function HomeTab({
         </article>
 
         <article className="home-card home-card-reading">
-          <div className="home-card-icon">✦</div>
+          <div className="home-card-icon">
+  <img src="/recentreadings.png" alt="Recent Reading" />
+</div>
 
           <div>
             <p className="home-card-label">Recent reading</p>
@@ -365,7 +371,9 @@ export function HomeTab({
         </article>
 
         <article className="home-card home-card-pattern">
-          <div className="home-card-icon">◇</div>
+          <div className="home-card-icon">
+  <img src="/patterns.png" alt="Patterns" />
+</div>
 
           <div>
             <p className="home-card-label">Your patterns</p>
@@ -420,7 +428,9 @@ export function HomeTab({
         </article>
 
         <article className="home-card home-card-journal">
-          <div className="home-card-icon">♡</div>
+          <div className="home-card-icon">
+  <img src="/journal.png" alt="Journal" />
+</div>
 
           <div>
             <p className="home-card-label">Your journal</p>
