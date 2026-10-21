@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { useAuth } from '@clerk/react';
+import { useAuth } from '../lib/useAuth';
 import type { Card, Entry, ReadState, Slot, Spread } from '../types';
 import { FOCUS, TH } from '../data/lore';
 import { SPREADS, getSpread } from '../data/spreads';
