@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/react';
+import { useAuth } from '../lib/useAuth';
 import { localBirthTimeToUtc } from '../lib/timezone';
 
 interface LocationResult {
