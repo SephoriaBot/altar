@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getUserId } from './_lib/auth.js';
+import { getUserId, isGuestId } from './_lib/auth.js';
 
 interface NominatimResult {
   display_name: string;
@@ -12,13 +12,18 @@ interface NominatimResult {
 const hits = new Map<string, number[]>();
 const MAX_PER_MINUTE = 20;
 
+const MAX_GUEST_PER_MINUTE = 15;
+
 function throttled(userId: string): boolean {
+  // Demo guests can make up new ids, so they all share one small bucket.
+  const guest = isGuestId(userId);
+  const key = guest ? 'guest-shared' : userId;
   const now = Date.now();
-  const recent = (hits.get(userId) ?? []).filter((t) => now - t < 60_000);
+  const recent = (hits.get(key) ?? []).filter((t) => now - t < 60_000);
   recent.push(now);
-  hits.set(userId, recent);
+  hits.set(key, recent);
   if (hits.size > 5000) hits.clear(); // keep memory bounded
-  return recent.length > MAX_PER_MINUTE;
+  return recent.length > (guest ? MAX_GUEST_PER_MINUTE : MAX_PER_MINUTE);
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
