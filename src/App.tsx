@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { SignIn, SignUp, UserButton, useAuth } from '@clerk/react';
+import { SignIn, SignUp, UserButton } from '@clerk/react';
 import type { Card, ReadState, SavedReading } from './types';
 import { CardDetail } from './components/CardDetail';
 import { CardsTab } from './components/CardsTab';
@@ -11,6 +11,7 @@ import { ReadTab } from './components/ReadTab';
 import { SpreadsTab } from './components/SpreadsTab';
 import { TRADITIONS, TRADITION_IDS } from './data/traditions';
 import { listReadings, loadRead, saveRead } from './lib/storage';
+import { exitGuest, startGuest, useAuth } from './lib/useAuth';
 import { TraditionProvider } from './lib/tradition';
 
 type Tab = 'home' | 'spreads' | 'read' | 'cards' | 'journal' | 'chart';
@@ -25,7 +26,7 @@ const TABS: [Tab, string, keyof typeof Icons][] = [
 ];
 
 export default function App() {
-  const { isLoaded, isSignedIn, getToken } = useAuth();
+  const { isLoaded, isSignedIn, isGuest, getToken } = useAuth();
 
   const [path, setPath] = useState(window.location.pathname);
   const [tab, setTab] = useState<Tab>('home');
@@ -153,6 +154,22 @@ export default function App() {
               </p>
             </>
           )}
+
+          <button
+            type="button"
+            className="btn"
+            style={{ marginTop: 16, width: '100%' }}
+            onClick={() => {
+              startGuest();
+              window.history.replaceState({}, '', '/');
+              setPath('/');
+            }}
+          >
+            Try the demo (no sign-in)
+          </button>
+          <p className="muted" style={{ fontSize: '0.8rem', textAlign: 'center' }}>
+            Demo readings and charts are wiped when you exit the demo.
+          </p>
         </div>
       </div>
     );
@@ -211,7 +228,16 @@ export default function App() {
             className="brand-logo"
           />
 
-          <UserButton />
+          {isGuest ? (
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <span className="muted" style={{ fontSize: '0.8rem' }}>Guest demo</span>
+              <button type="button" className="btn" onClick={() => void exitGuest()}>
+                Exit demo
+              </button>
+            </div>
+          ) : (
+            <UserButton />
+          )}
         </div>
 
         <div className="trad">
