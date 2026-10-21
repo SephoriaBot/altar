@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { SignInButton, useAuth } from '@clerk/react';
+import { SignInButton } from '@clerk/react';
+import { useAuth } from '../lib/useAuth';
 import type { SavedReading } from '../types';
 import { deleteReadingRemote, listReadings } from '../lib/storage';
 import { useTradition } from '../lib/tradition';
