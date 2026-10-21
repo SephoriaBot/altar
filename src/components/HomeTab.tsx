@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '@clerk/react';
+import { useAuth } from '../lib/useAuth';
 import type { SavedReading, Slot } from '../types';
 import { useTradition } from '../lib/tradition';
 import { drawCards } from '../lib/draw';
