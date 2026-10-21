@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient, type Client } from '@libsql/client';
-import { getUserId } from './_lib/auth.js';
+import { getUserId, isGuestId } from './_lib/auth.js';
 import { randomUUID } from 'node:crypto';
 
 let client: Client | null = null;
@@ -40,6 +40,7 @@ async function ensureTable(db: Client) {
 }
 
 const MAX_READINGS = 500;
+const MAX_GUEST_READINGS = 20;
 
 const clip = (v: unknown, max: number) =>
   typeof v === 'string' ? v.slice(0, max) : '';
@@ -156,9 +157,10 @@ export default async function handler(
         sql: 'SELECT COUNT(*) AS n FROM readings WHERE user_id = ?',
         args: [userId],
       });
-      if (Number((count.rows[0] as any).n) >= MAX_READINGS) {
+      const maxReadings = isGuestId(userId) ? MAX_GUEST_READINGS : MAX_READINGS;
+      if (Number((count.rows[0] as any).n) >= maxReadings) {
         return res.status(429).json({
-          error: `Your journal is full (${MAX_READINGS} readings). Delete some to add more.`,
+          error: `Your journal is full (${maxReadings} readings). Delete some to add more.`,
         });
       }
 
