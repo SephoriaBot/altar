@@ -236,7 +236,7 @@ const { getToken, isSignedIn } = useAuth();
       ) : read.view === 'cards' ? (
         <CardsView sp={sp} slots={slots} reversals={reversals} onSlot={setPick} onFlip={flip} onInfo={onCardInfo} />
       ) : (
-        <Together sp={sp} entries={entries} reversals={reversals} read={read} setRead={setRead} />
+        <Together sp={sp} entries={entries} reversals={reversals} read={read} setRead={setRead} question={question} />
       )}
 
       {filled > 0 && (
@@ -364,7 +364,7 @@ function CardsView({ sp, slots, reversals, onSlot, onFlip, onInfo }: { sp: Sprea
 function Together({ sp, entries, reversals, read, setRead }: { sp: Spread; entries: Entry[]; reversals: boolean; read: ReadState; setRead: (fn: (r: ReadState) => ReadState) => void }) {
   const T = useTradition();
   if (entries.length < 2) return <p className="empty-note">Add at least two cards to see how they combine.</p>;
-  const A: Analysis = analyze(entries, sp, reversals, T);
+  const A: Analysis = analyze(entries, sp, reversals, T, question.trim());
   const lens = focusLens(entries, read.focus);
   return (
     <div>
