@@ -361,7 +361,7 @@ function CardsView({ sp, slots, reversals, onSlot, onFlip, onInfo }: { sp: Sprea
   );
 }
 
-function Together({ sp, entries, reversals, read, setRead }: { sp: Spread; entries: Entry[]; reversals: boolean; read: ReadState; setRead: (fn: (r: ReadState) => ReadState) => void }) {
+function Together({ sp, entries, reversals, read, setRead, question }: { sp: Spread; entries: Entry[]; reversals: boolean; read: ReadState; setRead: (fn: (r: ReadState) => ReadState) => void; question: string }) {
   const T = useTradition();
   if (entries.length < 2) return <p className="empty-note">Add at least two cards to see how they combine.</p>;
   const A: Analysis = analyze(entries, sp, reversals, T, question.trim());
