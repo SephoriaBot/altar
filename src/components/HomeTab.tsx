@@ -110,67 +110,6 @@ export function HomeTab({
       </article>
 
       <div className="home-grid">
-        <article className="home-card home-card-reading">
-          <div className="home-card-icon">
-            <img src="/recentreadings.png" alt="Recent Reading" />
-          </div>
-
-          <div>
-            <p className="home-card-label">Recent reading</p>
-
-            {recentReading ? (
-              <>
-                <h2>
-                  {recentReading.question || 'Untitled reading'}
-                </h2>
-                <p>
-                  {recentReading.spreadName || 'Personal reading'}
-                </p>
-
-                <div className="home-reading-cards">
-                  {recentReading.cards
-                    .filter(Boolean)
-                    .slice(0, 3)
-                    .map((slot, index) => {
-                      if (!slot) return null;
-
-                      const card = T.cards[slot.id];
-                      if (!card) return null;
-
-                      return (
-                        <div
-                          className="home-reading-card"
-                          key={`${slot.id}-${index}`}
-                        >
-                          {card.name}
-                        </div>
-                      );
-                    })}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => onOpenReading(recentReading)}
-                >
-                  Open reading
-                </button>
-              </>
-            ) : (
-              <>
-                <h2>Your first reading awaits.</h2>
-                <p>
-                  Begin a reading and it will appear here once saved.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => onGoTo('read')}
-                >
-                  Begin a reading
-                </button>
-              </>
-            )}
-          </div>
-        </article>
 
         <article className="home-card home-card-journal">
           <div className="home-card-icon">
