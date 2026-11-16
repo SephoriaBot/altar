@@ -24,7 +24,7 @@ export function JournalTab({ onOpen }: { onOpen: (r: SavedReading) => void }) {
       setItems(await listReadings(getToken));
     } catch (e) {
       setItems(null);
-      setErr(e instanceof Error ? e.message : 'Could not load the journal.');
+      setErr(e instanceof Error ? e.message : 'Could not load saved readings.');
     } finally {
       setBusy(false);
     }
@@ -41,7 +41,7 @@ export function JournalTab({ onOpen }: { onOpen: (r: SavedReading) => void }) {
   if (!isLoaded) {
     return (
       <>
-        <h1>Journal</h1>
+        <h1>Saved Readings</h1>
         <p className="muted">Loading...</p>
       </>
     );
@@ -50,7 +50,8 @@ export function JournalTab({ onOpen }: { onOpen: (r: SavedReading) => void }) {
   if (!isSignedIn) {
     return (
       <>
-        <h1>Journal</h1>
+        <h1>Saved Readings</h1>
+
         <p className="muted">
           Sign in to save and view your personal tarot readings.
         </p>
@@ -58,7 +59,7 @@ export function JournalTab({ onOpen }: { onOpen: (r: SavedReading) => void }) {
         <div className="acts">
           <SignInButton mode="modal">
             <button type="button" className="btn">
-              Sign in to your journal
+              Sign in to your saved readings
             </button>
           </SignInButton>
         </div>
@@ -87,8 +88,8 @@ export function JournalTab({ onOpen }: { onOpen: (r: SavedReading) => void }) {
 
   return (
     <>
-      <h1>Journal</h1>
-      <p className="muted">Your saved readings, newest first.</p>
+      <h1>Saved Readings</h1>
+      <p className="muted">Your readings, newest first.</p>
 
       <div className="acts">
         <button

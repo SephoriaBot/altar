@@ -2,26 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import { SignIn, SignUp, UserButton } from '@clerk/react';
 import type { Card, ReadState, SavedReading } from './types';
 import { CardDetail } from './components/CardDetail';
-import { CardsTab } from './components/CardsTab';
+import { ExploreTab } from './components/ExploreTab';
 import { ChartTab } from './components/ChartTab';
 import { HomeTab } from './components/HomeTab';
 import { Icons } from './components/Glyph';
 import { JournalTab } from './components/JournalTab';
 import { ReadTab } from './components/ReadTab';
-import { SpreadsTab } from './components/SpreadsTab';
 import { TRADITIONS, TRADITION_IDS } from './data/traditions';
 import { listReadings, loadRead, saveRead } from './lib/storage';
 import { exitGuest, startGuest, useAuth } from './lib/useAuth';
 import { TraditionProvider } from './lib/tradition';
 
-type Tab = 'home' | 'spreads' | 'read' | 'cards' | 'journal' | 'chart';
+type Tab = 'home' | 'explore' | 'read' | 'journal' | 'chart';
 
 const TABS: [Tab, string, keyof typeof Icons][] = [
   ['home', 'Home', 'journal'],
-  ['spreads', 'Spreads', 'spreads'],
+  ['explore', 'Explore', 'spreads'],
   ['read', 'Read', 'read'],
-  ['cards', 'Cards', 'cards'],
-  ['journal', 'Journal', 'journal'],
+  ['journal', 'Saved', 'journal'],
   ['chart', 'Chart', 'chart'],
 ];
 
@@ -42,8 +40,6 @@ export default function App() {
     window.location.pathname === '/sign-up' ? 'sign-up' : 'sign-in',
   );
 
-  // Keep all hooks above any conditional return, or React throws
-  // "Rendered more hooks than during the previous render" on auth-state changes.
   useEffect(() => {
     if (
       isLoaded &&
@@ -57,7 +53,6 @@ export default function App() {
 
   useEffect(() => saveRead(read), [read]);
 
-  // Load this user's saved readings for the personal Home dashboard.
   useEffect(() => {
     if (!isSignedIn) {
       setReadings([]);
@@ -114,7 +109,7 @@ export default function App() {
           </div>
 
           <p className="auth-subtitle">
-            Your personal space for tarot readings, journals, and birth charts.
+            Your personal space for tarot readings and birth charts.
           </p>
 
           {authMode === 'sign-up' ? (
@@ -167,6 +162,7 @@ export default function App() {
           >
             Try the demo (no sign-in)
           </button>
+
           <p className="muted" style={{ fontSize: '0.8rem', textAlign: 'center' }}>
             Demo readings and charts are wiped when you exit the demo.
           </p>
@@ -230,8 +226,15 @@ export default function App() {
 
           {isGuest ? (
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span className="muted" style={{ fontSize: '0.8rem' }}>Guest demo</span>
-              <button type="button" className="btn" onClick={() => void exitGuest()}>
+              <span className="muted" style={{ fontSize: '0.8rem' }}>
+                Guest demo
+              </span>
+
+              <button
+                type="button"
+                className="btn"
+                onClick={() => void exitGuest()}
+              >
                 Exit demo
               </button>
             </div>
@@ -275,23 +278,12 @@ export default function App() {
             />
           )}
 
-          {tab === 'spreads' && (
-            <SpreadsTab
-              openId={openSpread}
-              setOpenId={(id) => {
-                setOpenSpread(id);
-                window.scrollTo(0, 0);
-              }}
-              onUse={useSpread}
-            />
-          )}
-
           {tab === 'read' && (
             <ReadTab
               read={read}
               setRead={setRead}
               onOpenSpread={(id) => {
-                setTab('spreads');
+                setTab('explore');
                 setOpenSpread(id);
                 window.scrollTo(0, 0);
               }}
@@ -300,7 +292,17 @@ export default function App() {
             />
           )}
 
-          {tab === 'cards' && <CardsTab onOpen={showCard} />}
+          {tab === 'explore' && (
+            <ExploreTab
+              openId={openSpread}
+              setOpenId={(id) => {
+                setOpenSpread(id);
+                window.scrollTo(0, 0);
+              }}
+              onUse={useSpread}
+              onCardOpen={showCard}
+            />
+          )}
 
           {tab === 'journal' && <JournalTab onOpen={openSaved} />}
 

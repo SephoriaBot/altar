@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../lib/useAuth';
+
+import { useState } from 'react';
 import type { SavedReading, Slot } from '../types';
 import { useTradition } from '../lib/tradition';
 import { drawCards } from '../lib/draw';
@@ -8,7 +8,7 @@ import { cardArt } from '../lib/art';
 interface HomeTabProps {
   readings: SavedReading[];
   onOpenReading: (reading: SavedReading) => void;
-  onGoTo: (tab: 'journal' | 'chart' | 'read') => void;
+  onGoTo: (tab: 'journal' | 'read') => void;
 }
 
 export function HomeTab({
@@ -17,297 +17,103 @@ export function HomeTab({
   onGoTo,
 }: HomeTabProps) {
   const T = useTradition();
-
-  const { getToken, isSignedIn } = useAuth();
-
-  const [chart, setChart] = useState<any | null>(null);
   const [dailyDraw, setDailyDraw] = useState<Slot | null>(null);
 
-  useEffect(() => {
-    if (!isSignedIn) {
-      setChart(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadSavedChart() {
-      try {
-        const token = await getToken();
-
-        const response = await fetch('/api/charts', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) return;
-
-        const data = await response.json();
-
-        if (!cancelled && data.charts?.length) {
-          setChart(data.charts[0].chart);
-        }
-      } catch {
-        // Keep the Home dashboard usable if the chart cannot be loaded.
-      }
-    }
-
-    void loadSavedChart();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [getToken, isSignedIn]);
-
-  const stats = useMemo(() => {
-    const cardCounts = new Map<string, number>();
-
-    readings.forEach((reading) => {
-      reading.cards.forEach((slot) => {
-        if (!slot) return;
-
-        const card = T.cards[slot.id];
-        if (!card) return;
-
-        cardCounts.set(card.name, (cardCounts.get(card.name) ?? 0) + 1);
-      });
-    });
-
-    const recurringCards = Array.from(cardCounts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
-
-    return {
-      totalReadings: readings.length,
-      recurringCards,
-    };
-  }, [readings, T]);
-
   const recentReading = readings[0] ?? null;
-
   const drawnCard = dailyDraw ? T.cards[dailyDraw.id] : null;
 
   function handleDailyDraw() {
     const deck = Object.values(T.cards);
-
     if (!deck.length) return;
 
-    const [slot] = drawCards(
-      deck,
-      1,
-      new Set(),
-      true,
-    );
+    const [slot] = drawCards(deck, 1, new Set(), true);
 
-    if (slot) {
-      setDailyDraw(slot);
-    }
+    if (slot) setDailyDraw(slot);
   }
 
   return (
     <section className="home-tab">
       <header className="home-header">
         <p className="eyebrow">Your Altar</p>
-
         <h1>A space for reflection.</h1>
-
         <p className="home-intro">
-          Your readings, your journal, your chart, and the patterns that
-          emerge over time.
+          Take a moment for yourself, explore the cards, and revisit
+          the messages that stay with you.
         </p>
       </header>
 
       <article className="home-card home-card-daily-draw">
-<div className="home-card-icon">
-  <img src="/dailydraw.png" alt="Daily Draw" />
-</div>
-
-  <div className="home-daily-draw-content">
-    <p className="home-card-label">Daily Draw</p>
-
-    {!drawnCard ? (
-      <>
-        <h2>What wants your attention today?</h2>
-
-        <p>
-          Draw a card for a moment of reflection, guidance, or
-          curiosity.
-        </p>
-
-        <button
-          type="button"
-          onClick={handleDailyDraw}
-        >
-          Draw your card
-        </button>
-      </>
-    ) : (
-      <div className="home-daily-draw-reveal">
-        <p className="home-daily-draw-result-label">
-          Your card for today
-        </p>
-
-        <div className="home-tarot-card">
-  <div className="home-tarot-card-inner">
-    {cardArt(drawnCard) ? (
-      <img
-        src={cardArt(drawnCard) ?? ''}
-        alt={drawnCard.name}
-        className="home-tarot-card-image"
-      />
-    ) : (
-      <>
-        <span className="home-tarot-card-number">
-          {drawnCard.id < 22
-            ? drawnCard.id
-            : drawnCard.num ?? ''}
-        </span>
-
-        <div className="home-tarot-card-symbol">
-          ✦
+        <div className="home-card-icon">
+          <img src="/dailydraw.png" alt="Daily Draw" />
         </div>
 
-        <h2>{drawnCard.name}</h2>
+        <div className="home-daily-draw-content">
+          <p className="home-card-label">Daily Draw</p>
 
-        <span className="home-tarot-card-orientation">
-          {dailyDraw?.rev ? 'Reversed' : 'Upright'}
-        </span>
-      </>
-    )}
-  </div>
-</div>
+          {!drawnCard ? (
+            <>
+              <h2>What wants your attention today?</h2>
+              <p>
+                Draw a card for a moment of reflection, guidance,
+                or curiosity.
+              </p>
+              <button type="button" onClick={handleDailyDraw}>
+                Draw your card
+              </button>
+            </>
+          ) : (
+            <div className="home-daily-draw-reveal">
+              <p className="home-daily-draw-result-label">
+                Your card for today
+              </p>
 
-        <div className="home-daily-draw-meaning">
-          <p className="home-daily-draw-meaning-label">
-            {dailyDraw?.rev ? 'Reversed' : 'Upright meaning'}
-          </p>
+              <div className="home-tarot-card">
+                <div className="home-tarot-card-inner">
+                  {cardArt(drawnCard) ? (
+                    <img
+                      src={cardArt(drawnCard) ?? ''}
+                      alt={drawnCard.name}
+                      className="home-tarot-card-image"
+                    />
+                  ) : (
+                    <>
+                      <span className="home-tarot-card-number">
+                        {drawnCard.id < 22
+                          ? drawnCard.id
+                          : drawnCard.num ?? ''}
+                      </span>
+                      <div className="home-tarot-card-symbol">✦</div>
+                      <h2>{drawnCard.name}</h2>
+                      <span className="home-tarot-card-orientation">
+                        {dailyDraw?.rev ? 'Reversed' : 'Upright'}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
 
-          <p>
-            {dailyDraw?.rev ? drawnCard.rev : drawnCard.up}
-          </p>
+              <div className="home-daily-draw-meaning">
+                <p className="home-daily-draw-meaning-label">
+                  {dailyDraw?.rev ? 'Reversed' : 'Upright meaning'}
+                </p>
+                <p>
+                  {dailyDraw?.rev ? drawnCard.rev : drawnCard.up}
+                </p>
+              </div>
+
+              <button type="button" onClick={handleDailyDraw}>
+                Draw again
+              </button>
+            </div>
+          )}
         </div>
-
-        <button
-          type="button"
-          onClick={handleDailyDraw}
-        >
-          Draw again
-        </button>
-      </div>
-    )}
-  </div>
-</article>
+      </article>
 
       <div className="home-grid">
-        <article className="home-card home-card-chart">
-          <div className="home-card-icon">
-  <img src="/chart.png" alt="Your Chart" />
-</div>
-
-          <div>
-            <p className="home-card-label">Your chart</p>
-
-            {chart ? (
-              <>
-                <h2>
-                  {chart.placements?.find(
-                    (placement: { body: string }) =>
-                      placement.body === 'sun',
-                  )?.sign ?? 'Your celestial map'}
-                  {' '}Sun
-                </h2>
-
-                <p>
-                  {chart.placements?.find(
-                    (placement: { body: string }) =>
-                      placement.body === 'moon',
-                  )?.sign ?? 'Moon'}
-                  {' '}Moon
-                  {' · '}
-                  {chart.angles?.zodiacAscendant != null
-                    ? `${
-                        Math.floor(
-                          chart.angles.zodiacAscendant / 30,
-                        ) === 0
-                          ? 'Aries'
-                          : Math.floor(
-                              chart.angles.zodiacAscendant / 30,
-                            ) === 1
-                            ? 'Taurus'
-                            : Math.floor(
-                                chart.angles.zodiacAscendant / 30,
-                              ) === 2
-                              ? 'Gemini'
-                              : Math.floor(
-                                  chart.angles.zodiacAscendant / 30,
-                                ) === 3
-                                ? 'Cancer'
-                                : Math.floor(
-                                    chart.angles.zodiacAscendant / 30,
-                                  ) === 4
-                                  ? 'Leo'
-                                  : Math.floor(
-                                      chart.angles.zodiacAscendant / 30,
-                                    ) === 5
-                                    ? 'Virgo'
-                                    : Math.floor(
-                                        chart.angles.zodiacAscendant / 30,
-                                      ) === 6
-                                      ? 'Libra'
-                                      : Math.floor(
-                                          chart.angles.zodiacAscendant / 30,
-                                        ) === 7
-                                        ? 'Scorpio'
-                                        : Math.floor(
-                                            chart.angles.zodiacAscendant / 30,
-                                          ) === 8
-                                          ? 'Sagittarius'
-                                          : Math.floor(
-                                              chart.angles.zodiacAscendant / 30,
-                                            ) === 9
-                                            ? 'Capricorn'
-                                            : Math.floor(
-                                                chart.angles.zodiacAscendant /
-                                                  30,
-                                              ) === 10
-                                              ? 'Aquarius'
-                                              : 'Pisces'
-                      } Rising`
-                    : 'Rising'}
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() => onGoTo('chart')}
-                >
-                  View your chart
-                </button>
-              </>
-            ) : (
-              <>
-                <h2>Your celestial map</h2>
-
-                <p>
-                  Save your birth chart to begin seeing your personal
-                  placements here.
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() => onGoTo('chart')}
-                >
-                  Open chart
-                </button>
-              </>
-            )}
-          </div>
-        </article>
-
         <article className="home-card home-card-reading">
           <div className="home-card-icon">
-  <img src="/recentreadings.png" alt="Recent Reading" />
-</div>
+            <img src="/recentreadings.png" alt="Recent Reading" />
+          </div>
 
           <div>
             <p className="home-card-label">Recent reading</p>
@@ -317,7 +123,6 @@ export function HomeTab({
                 <h2>
                   {recentReading.question || 'Untitled reading'}
                 </h2>
-
                 <p>
                   {recentReading.spreadName || 'Personal reading'}
                 </p>
@@ -337,7 +142,7 @@ export function HomeTab({
                           className="home-reading-card"
                           key={`${slot.id}-${index}`}
                         >
-                          <span>{card.name}</span>
+                          {card.name}
                         </div>
                       );
                     })}
@@ -353,69 +158,9 @@ export function HomeTab({
             ) : (
               <>
                 <h2>Your first reading awaits.</h2>
-
                 <p>
-                  Begin a reading and your personal history will start
-                  here.
+                  Begin a reading and it will appear here once saved.
                 </p>
-
-                <button
-                  type="button"
-                  onClick={() => onGoTo('read')}
-                >
-                  Begin a reading
-                </button>
-              </>
-            )}
-          </div>
-        </article>
-
-        <article className="home-card home-card-pattern">
-          <div className="home-card-icon">
-  <img src="/patterns.png" alt="Patterns" />
-</div>
-
-          <div>
-            <p className="home-card-label">Your patterns</p>
-
-            <h2>What keeps appearing?</h2>
-
-            {stats.recurringCards.length > 0 ? (
-              <>
-                <p>
-                  The cards that have appeared most often across your
-                  saved readings.
-                </p>
-
-                <div className="home-card-list">
-                  {stats.recurringCards.map(([name, count], index) => (
-                    <div
-                      className="home-list-row"
-                      key={name}
-                    >
-                      <span>
-                        <strong>{index + 1}</strong>
-                        {' '}
-                        {name}
-                      </span>
-
-                      <span>
-                        {count}{' '}
-                        {count === 1
-                          ? 'appearance'
-                          : 'appearances'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <>
-                <p>
-                  As you save readings, Altar will begin noticing
-                  recurring cards and patterns in your history.
-                </p>
-
                 <button
                   type="button"
                   onClick={() => onGoTo('read')}
@@ -429,47 +174,28 @@ export function HomeTab({
 
         <article className="home-card home-card-journal">
           <div className="home-card-icon">
-  <img src="/journal.png" alt="Journal" />
-</div>
+            <img src="/journal.png" alt="Saved Readings" />
+          </div>
 
           <div>
-            <p className="home-card-label">Your journal</p>
+            <p className="home-card-label">Saved Readings</p>
+            <h2>Your reading history</h2>
 
-            <h2>Your reflections</h2>
-
-            {stats.totalReadings === 0 ? (
-              <p>
-                Your saved readings and reflections will live here.
-              </p>
-            ) : (
-              <>
-                <p>
-                  You have {stats.totalReadings}{' '}
-                  {stats.totalReadings === 1
-                    ? 'saved reading'
-                    : 'saved readings'}.
-                </p>
-
-                {recentReading?.createdAt && (
-                  <p className="home-journal-date">
-                    Last reading ·{' '}
-                    {new Date(
-                      recentReading.createdAt,
-                    ).toLocaleDateString(undefined, {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </p>
-                )}
-              </>
-            )}
+            <p>
+              {readings.length === 0
+                ? 'Your saved readings will be collected here.'
+                : `You have ${readings.length} ${
+                    readings.length === 1
+                      ? 'saved reading'
+                      : 'saved readings'
+                  } to revisit.`}
+            </p>
 
             <button
               type="button"
               onClick={() => onGoTo('journal')}
             >
-              Open journal
+              View saved readings
             </button>
           </div>
         </article>
