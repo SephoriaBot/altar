@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import type { SavedReading, Slot } from '../types';
 import { useTradition } from '../lib/tradition';
-import { drawCards } from '../lib/draw';
+import { dailyCard, localDateKey } from '../lib/dailyCard';
+import { useAuth } from '../lib/useAuth';
 import { cardArt } from '../lib/art';
 
 interface HomeTabProps {
@@ -17,18 +18,16 @@ export function HomeTab({
   onGoTo,
 }: HomeTabProps) {
   const T = useTradition();
+  const { userId } = useAuth();
   const [dailyDraw, setDailyDraw] = useState<Slot | null>(null);
 
   const recentReading = readings[0] ?? null;
   const drawnCard = dailyDraw ? T.cards[dailyDraw.id] : null;
 
   function handleDailyDraw() {
-    const deck = Object.values(T.cards);
-    if (!deck.length) return;
-
-    const [slot] = drawCards(deck, 1, new Set(), true);
-
-    if (slot) setDailyDraw(slot);
+    // Same card all day for this person; a new one tomorrow.
+    const slot = dailyCard(userId ?? 'anonymous', localDateKey());
+    if (T.cards[slot.id]) setDailyDraw(slot);
   }
 
   return (
@@ -58,7 +57,7 @@ export function HomeTab({
                 or curiosity.
               </p>
               <button type="button" onClick={handleDailyDraw}>
-                Draw your card
+                Reveal today's card
               </button>
             </>
           ) : (
@@ -100,10 +99,6 @@ export function HomeTab({
                   {dailyDraw?.rev ? drawnCard.rev : drawnCard.up}
                 </p>
               </div>
-
-              <button type="button" onClick={handleDailyDraw}>
-                Draw again
-              </button>
             </div>
           )}
         </div>
