@@ -4,6 +4,7 @@ import type { SavedReading, Slot } from '../types';
 import { useTradition } from '../lib/tradition';
 import { dailyCard, localDateKey } from '../lib/dailyCard';
 import { useAuth } from '../lib/useAuth';
+import { ReminderToggle } from './ReminderToggle';
 import { cardArt } from '../lib/art';
 
 interface HomeTabProps {
@@ -101,6 +102,7 @@ export function HomeTab({
               </div>
             </div>
           )}
+          <ReminderToggle />
         </div>
       </article>
 
