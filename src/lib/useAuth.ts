@@ -74,7 +74,10 @@ export function useAuth() {
   const guestToken = useCallback(async () => guest, [guest]);
   const getToken = (isGuest ? guestToken : clerk.getToken) as () => Promise<string | null>;
 
+  const userId: string | null = isGuest ? guest : clerk.userId ?? null;
+
   return {
+    userId,
     isLoaded: clerk.isLoaded,
     isSignedIn: !!clerk.isSignedIn || isGuest,
     isGuest,
