@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient, type Client } from '@libsql/client';
-import webpush from 'web-push';
+import * as webpush from 'web-push';
 import { timingSafeEqual } from 'node:crypto';
 import { dailyCard } from '../../src/lib/dailyCard.js';
 import { CARDS } from '../../src/data/cards.js';
