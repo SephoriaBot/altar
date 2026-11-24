@@ -1,5 +1,5 @@
 import type { Arc, Card, Element } from '../types';
-import { RANKS, RANK_SHORT, ROMAN, SUITS } from './lore';
+import { RANKS, RANK_SHORT, ROMAN, SUITS } from './lore.js';
 
 // name|element|astrology|upright keywords|reversed keywords|upright|reversed|themes|tone
 // Tone is two characters, upright then reversed: + supportive, 0 mixed, - challenging.
