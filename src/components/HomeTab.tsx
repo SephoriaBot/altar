@@ -37,7 +37,7 @@ export function HomeTab({
         <p className="eyebrow">Your Altar</p>
         <h1>A space for reflection.</h1>
         <p className="home-intro">
-          Take a moment for yourself, explore the cards, and revisit
+          Take a moment for yourself, do a reading, and revisit
           the messages that stay with you.
         </p>
       </header>
