@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { SignIn, SignUp, UserButton } from '@clerk/react';
 import type { Card, ReadState, SavedReading } from './types';
 import { CardDetail } from './components/CardDetail';
-import { ExploreTab } from './components/ExploreTab';
 import { ChartTab } from './components/ChartTab';
 import { HomeTab } from './components/HomeTab';
 import { Icons } from './components/Glyph';
@@ -13,11 +12,10 @@ import { listReadings, loadRead, saveRead } from './lib/storage';
 import { exitGuest, startGuest, useAuth } from './lib/useAuth';
 import { TraditionProvider } from './lib/tradition';
 
-type Tab = 'home' | 'explore' | 'read' | 'journal' | 'chart';
+type Tab = 'home' | 'read' | 'journal' | 'chart';
 
 const TABS: [Tab, string, keyof typeof Icons][] = [
   ['home', 'Home', 'journal'],
-  ['explore', 'Explore', 'spreads'],
   ['read', 'Read', 'read'],
   ['journal', 'Saved', 'journal'],
   ['chart', 'Chart', 'chart'],
@@ -28,7 +26,6 @@ export default function App() {
 
   const [path, setPath] = useState(window.location.pathname);
   const [tab, setTab] = useState<Tab>('home');
-  const [openSpread, setOpenSpread] = useState<string | null>(null);
   const [read, setReadState] = useState<ReadState>(loadRead);
   const [infoId, setInfoId] = useState<number | null>(null);
   const [toastMsg, setToastMsg] = useState('');
@@ -181,7 +178,6 @@ export default function App() {
 
   const go = (t: Tab) => {
     setTab(t);
-    setOpenSpread(null);
     window.scrollTo(0, 0);
   };
 
@@ -189,11 +185,6 @@ export default function App() {
     setToastMsg(m);
     window.clearTimeout(toastTimer.current);
     toastTimer.current = window.setTimeout(() => setToastMsg(''), 2200);
-  };
-
-  const useSpread = (id: string) => {
-    setRead((r) => ({ ...r, spread: id }));
-    go('read');
   };
 
   const openSaved = (s: SavedReading) => {
@@ -282,25 +273,8 @@ export default function App() {
             <ReadTab
               read={read}
               setRead={setRead}
-              onOpenSpread={(id) => {
-                setTab('explore');
-                setOpenSpread(id);
-                window.scrollTo(0, 0);
-              }}
               onCardInfo={showCard}
               toast={toast}
-            />
-          )}
-
-          {tab === 'explore' && (
-            <ExploreTab
-              openId={openSpread}
-              setOpenId={(id) => {
-                setOpenSpread(id);
-                window.scrollTo(0, 0);
-              }}
-              onUse={useSpread}
-              onCardOpen={showCard}
             />
           )}
 
