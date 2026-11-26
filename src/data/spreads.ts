@@ -282,26 +282,6 @@ export const SPREADS: Spread[] = [
       P('How to integrate', 'A way to work with it rather than against it.', 1, 2),
     ],
   }),
-  prep({
-    id: 'cozy',
-    name: 'Cozy check-in',
-    tags: ['Self'],
-    links: [[0, 1, 'how you are and what you need'], [2, 3, 'what to set down and the comfort that replaces it'], [0, 3, 'how you are and the comfort']],
-    blurb: 'Four soft questions about how you are and what would help.',
-    best: 'Evenings, low-energy days and gentle self-care.',
-    steps: [
-      'Make tea, get comfortable, and take three slow breaths.',
-      'Shuffle and cut. Deal four cards in a two-by-two square.',
-      'Read left to right, top to bottom. Finish with the small comfort and try to do it today.',
-    ],
-    tip: 'Keep it gentle. Challenging cards here point to what needs tenderness, not what is wrong with you.',
-    pos: [
-      P("How I'm doing", 'An honest check-in with yourself.', 0, 0),
-      P('What I need', 'What would help most right now.', 1, 0),
-      P('What to set down', 'Something you can put down, even for tonight.', 0, 1),
-      P('A small comfort', 'One small, doable kindness for yourself.', 1, 1),
-    ],
-  }),
 ];
 
 export function freeSpread(n: number): Spread {
