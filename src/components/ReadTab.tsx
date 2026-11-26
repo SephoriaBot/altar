@@ -161,7 +161,6 @@ const { getToken, isSignedIn } = useAuth();
   return (
     <>
       <h1>Read</h1>
-      <p className="muted">Enter the cards you drew, in the positions where you laid them.</p>
 
       <label className="lbl" htmlFor="sel-spread">
         Spread
@@ -222,26 +221,32 @@ const { getToken, isSignedIn } = useAuth();
           <button type="button" className="btn sm" onClick={draw}>
             {filled === sp.n ? 'Redraw all' : filled ? 'Draw remaining' : 'Draw cards'}
           </button>
-          <button type="button" className="btn ghost sm" disabled={!filled} onClick={copy}>
-            Copy reading
-          </button>
-          <button type="button" className="btn ghost sm" disabled={!filled} onClick={clear}>
-            {armed ? 'Tap again to clear' : 'Clear'}
-          </button>
+          {filled > 0 && (
+            <>
+              <button type="button" className="btn ghost sm" onClick={copy}>
+                Copy reading
+              </button>
+              <button type="button" className="btn ghost sm" onClick={clear}>
+                {armed ? 'Tap again to clear' : 'Clear'}
+              </button>
+            </>
+          )}
         </span>
       </div>
 
-      <div className="seg" role="group" aria-label="Results view">
-        <button type="button" aria-pressed={read.view === 'cards'} onClick={() => setRead((r) => ({ ...r, view: 'cards' }))}>
-          Each card
-        </button>
-        <button type="button" aria-pressed={read.view === 'together'} onClick={() => setRead((r) => ({ ...r, view: 'together' }))}>
-          Together
-        </button>
-      </div>
+      {filled > 0 && (
+        <div className="seg" role="group" aria-label="Results view">
+          <button type="button" aria-pressed={read.view === 'cards'} onClick={() => setRead((r) => ({ ...r, view: 'cards' }))}>
+            Each card
+          </button>
+          <button type="button" aria-pressed={read.view === 'together'} onClick={() => setRead((r) => ({ ...r, view: 'together' }))}>
+            Together
+          </button>
+        </div>
+      )}
 
       {filled === 0 ? (
-        <p className="empty-note">Tap a numbered slot above and pick the card you drew. Cards fill in order, and the reading updates as you go.</p>
+        <p className="empty-note">Tap a numbered slot to enter a card you drew, or press Draw cards for a random reading.</p>
       ) : read.view === 'cards' ? (
         <CardsView sp={sp} slots={slots} reversals={reversals} onSlot={setPick} onFlip={flip} onInfo={onCardInfo} />
       ) : (
