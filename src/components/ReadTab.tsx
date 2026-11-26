@@ -16,12 +16,11 @@ import { Table } from './Table';
 interface Props {
   read: ReadState;
   setRead: (fn: (r: ReadState) => ReadState) => void;
-  onOpenSpread: (id: string) => void;
   onCardInfo: (c: Card) => void;
   toast: (msg: string) => void;
 }
 
-export function ReadTab({ read, setRead, onOpenSpread, onCardInfo, toast }: Props) {
+export function ReadTab({ read, setRead, onCardInfo, toast }: Props) {
   const T = useTradition();
 const { getToken, isSignedIn } = useAuth();
   const reversals = read.rev && T.reversals;
@@ -185,11 +184,7 @@ const { getToken, isSignedIn } = useAuth();
         ) : (
           <span className="muted small">{T.reversalsNote}</span>
         )}
-        {sp.id !== 'free' ? (
-          <button type="button" className="link" onClick={() => onOpenSpread(sp.id)}>
-            How to lay it out
-          </button>
-        ) : (
+        {sp.id === 'free' && (
           <span className="btns" style={{ display: 'flex', gap: 8 }}>
             <button type="button" className="btn ghost sm" disabled={read.free <= 1} onClick={() => setRead((r) => ({ ...r, free: Math.max(1, r.free - 1) }))}>
               Remove position
@@ -200,6 +195,20 @@ const { getToken, isSignedIn } = useAuth();
           </span>
         )}
       </div>
+
+      {sp.id !== 'free' && (
+        <details className="basics">
+          <summary>How to lay it out</summary>
+          <ol className="steps">
+            {sp.steps.map((st) => (
+              <li key={st}>{st}</li>
+            ))}
+          </ol>
+          <div className="note">
+            <strong>Reading tip.</strong> {sp.tip}
+          </div>
+        </details>
+      )}
 
       <div className="cloth">
         <Table spread={sp} slots={slots} reversals={reversals} interactive dealt={dealt} onSlot={setPick} />
