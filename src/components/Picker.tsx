@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Card, Slot, Spread } from '../types';
+import type { Arc, Card, Slot, Spread } from '../types';
 import { cardArt } from '../lib/art';
 import { filtersFor, searchCards, type DeckFilter } from '../lib/search';
 import { useTradition } from '../lib/tradition';
-import { Glyph } from './Glyph';
+import { Glyph, Icons } from './Glyph';
 import { Sheet } from './Sheet';
+import './picker-cats.css';
 
 interface Props {
   spread: Spread;
@@ -29,7 +30,7 @@ function PickerBody({ spread, index, slots, reversals, onPick, onRandom, onRemov
   const T = useTradition();
   const cur = slots[index];
   const [q, setQ] = useState('');
-  const [f, setF] = useState<DeckFilter>('all');
+  const [f, setF] = useState<DeckFilter | null>(null);
   const [rev, setRev] = useState(!!cur?.rev && reversals);
   const inputRef = useRef<HTMLInputElement>(null);
   const p = spread.pos[index];
@@ -46,7 +47,16 @@ function PickerBody({ spread, index, slots, reversals, onPick, onRandom, onRemov
     return m;
   }, [slots, index]);
 
-  const results = useMemo(() => searchCards(q, f, T), [q, f, T]);
+  const browsing = f !== null || q.trim() !== '';
+  const results = useMemo(() => (browsing ? searchCards(q, f ?? 'all', T) : []), [q, f, T, browsing]);
+  const cats = useMemo(
+    () =>
+      filtersFor(T)
+        .filter(([k]) => k !== 'all')
+        .map(([k, label]) => ({ k, label: k === 'major' ? 'Major Arcana' : label, n: T.cards.filter((c) => c.arc === k).length })),
+    [T],
+  );
+  const catLabel = cats.find((c) => c.k === f)?.label;
 
   return (
     <div className="sh">
@@ -82,7 +92,7 @@ function PickerBody({ spread, index, slots, reversals, onPick, onRandom, onRemov
         ref={inputRef}
         className="field"
         type="search"
-        placeholder="Search by name, number or suit"
+        placeholder={f ? `Search ${catLabel}` : 'Search by name, number or suit'}
         value={q}
         autoComplete="off"
         autoCapitalize="off"
@@ -97,16 +107,29 @@ function PickerBody({ spread, index, slots, reversals, onPick, onRandom, onRemov
           }
         }}
       />
-      <div className="chips scroll">
-        {filtersFor(T).map(([k, label]) => (
-          <button key={k} type="button" className="chip" aria-pressed={f === k} onClick={() => setF(k)}>
-            {label}
-          </button>
-        ))}
-      </div>
+      {f && (
+        <button type="button" className="link back" onClick={() => setF(null)}>
+          {Icons.back}
+          All categories
+          <span className="muted"> · {catLabel}</span>
+        </button>
+      )}
 
       <div className="sh-scroll">
-        {results.length === 0 && <p className="empty-note">No card matches. Try a name, a number or a suit, like "tower" or "3 cups".</p>}
+        {!browsing && (
+          <div className="cats">
+            {cats.map((c) => (
+              <button key={c.k} type="button" className={`cat s-${c.k}` + (c.k === 'major' ? ' wide' : '')} onClick={() => setF(c.k)}>
+                <span className="cat-ic">
+                  <Glyph arc={c.k as Arc} tradition={T.id} />
+                </span>
+                <span className="cat-name">{c.label}</span>
+                <span className="cat-n">{c.n} cards</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {browsing && results.length === 0 && <p className="empty-note">No card matches. Try a name, a number or a suit, like "tower" or "3 cups".</p>}
         {results.map((c) => {
           const u = used.get(c.id);
           const art = cardArt(c);
