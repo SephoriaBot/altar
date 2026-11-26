@@ -107,6 +107,23 @@ export function HomeTab({
       </article>
 
       <div className="home-grid">
+        <article className="home-card home-card-reading">
+          <div className="home-card-icon">
+            <img src="/recentreadings.png" alt="New Reading" />
+          </div>
+
+          <div>
+            <p className="home-card-label">New Reading</p>
+            <h2>Sit down with the cards</h2>
+            <p>
+              Choose a spread, then enter the cards you drew or
+              draw them here.
+            </p>
+            <button type="button" onClick={() => onGoTo('read')}>
+              Start a reading
+            </button>
+          </div>
+        </article>
 
         <article className="home-card home-card-journal">
           <div className="home-card-icon">
@@ -115,24 +132,40 @@ export function HomeTab({
 
           <div>
             <p className="home-card-label">Saved Readings</p>
-            <h2>Your reading history</h2>
 
-            <p>
-              {readings.length === 0
-                ? 'Your saved readings will be collected here.'
-                : `You have ${readings.length} ${
-                    readings.length === 1
-                      ? 'saved reading'
-                      : 'saved readings'
-                  } to revisit.`}
-            </p>
+            {recentReading ? (
+              <>
+                <h2>{recentReading.spreadName}</h2>
+                <p>
+                  {recentReading.question
+                    ? `"${recentReading.question}"`
+                    : 'No question noted.'}{' '}
+                  Saved{' '}
+                  {new Date(recentReading.createdAt).toLocaleDateString(
+                    undefined,
+                    { month: 'short', day: 'numeric' },
+                  )}
+                  .
+                </p>
 
-            <button
-              type="button"
-              onClick={() => onGoTo('journal')}
-            >
-              View saved readings
-            </button>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => onOpenReading(recentReading)}
+                  >
+                    Open it
+                  </button>
+                  <button type="button" onClick={() => onGoTo('journal')}>
+                    All saved ({readings.length})
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2>Nothing saved yet</h2>
+                <p>Readings you save will show up here.</p>
+              </>
+            )}
           </div>
         </article>
       </div>
